@@ -29,7 +29,7 @@ class Voter(db.Base):
     contact = Column(String(255), ForeignKey("contacts.id"))
     notes = Column(String(255), index=True)
     importance = Column(String(255), index=True)
-    date_delivered = Column(DateTime, default=datetime.datetime.now)
+    date_delivered = Column(DateTime, default=datetime.datetime.utcnow)
     delivered_by = Column(String(255), ForeignKey("users.id"))
 
 
