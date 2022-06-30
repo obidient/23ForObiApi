@@ -2,7 +2,11 @@ import datetime
 from uuid import uuid4
 
 import bigfastapi.db.database as db
+from bigfastapi.models.contact_model import ContactUs
+from bigfastapi.models.location_models import Location
+from bigfastapi.models.user_models import User
 from sqlalchemy import ForeignKey, Integer
+from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Column
 from sqlalchemy.types import DateTime, String
 
@@ -17,7 +21,7 @@ class Village(db.Base):
     __tablename__ = "villages"
     id = Column(String(255), primary_key=True, index=True, default=uuid4().hex)
     name = Column(String(255), index=True)
-    loation = Column(String(255), ForeignKey("locations.id"))
+    location_id = Column(String(255), ForeignKey("locations.id"))
     contributed_by = Column(String(255), ForeignKey("users.id"))
 
 
@@ -26,7 +30,7 @@ class Voter(db.Base):
     id = Column(String(50), primary_key=True, index=True, default=uuid4().hex)
     village = Column(String(255), ForeignKey("villages.id"))
     name = Column(String(255), index=True)
-    contact = Column(String(255), ForeignKey("contacts.id"))
+    contact = Column(String(255), ForeignKey("contactus.id"))
     notes = Column(String(255), index=True)
     importance = Column(String(255), index=True)
     date_delivered = Column(DateTime, default=datetime.datetime.utcnow)
@@ -35,7 +39,7 @@ class Voter(db.Base):
 
 class DuplicatedVoter(db.Base):
     __tablename__ = "duplicated_voters"
-    pass
+    id = Column(String(50), primary_key=True, index=True, default=uuid4().hex)
 
 
 class UserVillage(db.Base):
