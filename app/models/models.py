@@ -21,7 +21,7 @@ class Village(db.Base):
     __tablename__ = "villages"
     id = Column(String(255), primary_key=True, index=True, default=uuid4().hex)
     name = Column(String(255), index=True)
-    location_id = Column(String(255), ForeignKey("locations.id"))
+    location = Column(String(255), ForeignKey("locations.id"))
     contributed_by = Column(String(255), ForeignKey("users.id"))
 
 
