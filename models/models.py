@@ -4,6 +4,7 @@ import bigfastapi.db.database as db
 from sqlalchemy.schema import Column
 from sqlalchemy.types import String
 
+
 UUID_HEX = uuid4().hex
 
 
