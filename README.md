@@ -46,3 +46,12 @@ python main.py
 ```
 python -m pip install --upgrade pip
 ```
+
+
+## Resources
+- [Final Architecture](https://www.figma.com/file/x2kTIIksxP57V7Fci2k3Du/Main-%2323ForObi_Website?node-id=901%3A3346)
+- [Figma Design](https://www.figma.com/file/x2kTIIksxP57V7Fci2k3Du/Main-%2323ForObi_Website?node-id=1%3A847)
+- [Recorded Meeting](https://drive.google.com/file/d/1wds3Z2-TVLdN-d_GI3prg4DAIYwWVjyI/view)
+
+## Support
+Join Our [Whatsapp Group](https://chat.whatsapp.com/HV56hh1dRvjEBb6m3AtvEJ).
