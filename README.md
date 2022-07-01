@@ -1,7 +1,8 @@
 ![](https://23forobi.com/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo.f4cb05ca.png&w=256&q=75 "#23ForObi")
 
 # #23ForObi Core API
-**23 votes for PETER OBI** <br/>*The goal is to deliver at least 23 votes per village within each state and with your help and the help of your loved ones, we can do this*
+**23 votes for PETER OBI** 
+>*The goal is to deliver at least 23 votes per village within each state and with your help and the help of your loved ones, we can do this*
 
 ## Description
 #23forobi API is an open source API that serves as the backend for [23forobi Website](https://23forobi.com/)
