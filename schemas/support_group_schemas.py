@@ -10,6 +10,7 @@ class SupportGroupBase(pd.BaseModel):
 
 class SupportGroup(SupportGroupBase):
     id: str
+    is_active: bool
 
     class Config:
         orm_mode = True
