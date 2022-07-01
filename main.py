@@ -26,7 +26,7 @@ app.add_middleware(
 app.include_router(countries, tags=["Countries"])
 app.include_router(api, tags=["Api"])
 app.include_router(support_group, tags=["Support Group"])
-app.include_router(auth)
+app.include_router(auth, tags=["Social Auth"])
 # app.include_router(organization, tags=["Organization"])
 
 # Create all database objects
