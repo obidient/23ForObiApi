@@ -1,12 +1,16 @@
 import bigfastapi
 import uvicorn
-from bigfastapi.countries import app as countries
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from controllers.support_group import app as support_group
-
 import database
 from api import app as api
+
+############IMPORTS FROM BIGFASTAPI#####################
+from bigfastapi.countries import app as countries
+from bigfastapi.google_auth import app as auth
+from bigfastapi.organization import app as organization
+
 
 app = FastAPI()
 
@@ -22,6 +26,8 @@ app.add_middleware(
 app.include_router(countries, tags=["Countries"])
 app.include_router(api, tags=["Api"])
 app.include_router(support_group, tags=["Support Group"])
+app.include_router(auth)
+# app.include_router(organization, tags=["Organization"])
 
 # Create all database objects
 database.db.create_database()
