@@ -1,4 +1,5 @@
 wheel
+bigfastapi
 uvicorn       
 aioredis
 aiosmtplib
