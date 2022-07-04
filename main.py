@@ -2,6 +2,7 @@ import bigfastapi
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 from controllers.support_group import app as support_group
 from decouple import config
 import database
@@ -23,11 +24,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(SessionMiddleware, secret_key="super_secret_key")
 
 app.include_router(countries, tags=["Countries"])
 app.include_router(api, tags=["Api"])
 app.include_router(support_group, tags=["Support Group"])
-app.include_router(auth, tags=["Social Auth"])
+app.include_router(auth) #social auth
 # app.include_router(organization, tags=["Organization"])
 
 # Create all database objects
