@@ -1,13 +1,19 @@
 import bigfastapi
 import uvicorn
-from bigfastapi.countries import app as countries
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 from controllers.support_group import app as support_group
-
+from decouple import config
 import database
 from api import app as api
 
+############IMPORTS FROM BIGFASTAPI#####################
+from bigfastapi.countries import app as countries
+from bigfastapi.google_auth import app as auth
+from bigfastapi.organization import app as organization
+
+PORT = int(config("PORT"))
 app = FastAPI()
 
 origins = ["*"]
@@ -18,10 +24,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(SessionMiddleware, secret_key="super_secret_key")
 
 app.include_router(countries, tags=["Countries"])
 app.include_router(api, tags=["Api"])
 app.include_router(support_group, tags=["Support Group"])
+app.include_router(auth) #social auth
+# app.include_router(organization, tags=["Organization"])
 
 # Create all database objects
 database.db.create_database()
@@ -39,4 +48,4 @@ async def get_root() -> dict:
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", port=7001, reload=True)
+    uvicorn.run("main:app", port=PORT, reload=True)
