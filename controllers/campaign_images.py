@@ -31,7 +31,12 @@ async def create_campaign_image(
         "support_group": campaign_schemas.CampaignImage.from_orm(db_campaign_image),
     }
 
-@app.get("/campaign-images", response_model=List[campaign_schemas.CampaignImage])
-async def list_campaign_images(db: Session = fastapi.Depends(get_db)):
-    campaign_images = db.query(campaign_models.CampaignImage).all()
+
+@app.get(
+    "/campaign-images/{state_id}", response_model=List[campaign_schemas.CampaignImage]
+)
+async def list_campaign_images(state_id: str, db: Session = fastapi.Depends(get_db)):
+    campaign_images = db.query(campaign_models.CampaignImage).filter(
+        campaign_models.CampaignImage.location == state_id
+    )
     return list(map(campaign_schemas.CampaignImage.from_orm, campaign_images))
