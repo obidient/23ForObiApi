@@ -14,14 +14,6 @@ class Village(VillageBase):
         orm_mode = True
 
 
-class VillageCreate(VillageBase):
-    pass
-
-
-class VillageUpdate(VillageBase):
-    pass
-
-
 class UserVillageBase(pd.BaseModel):
     village: str
     user: str
@@ -32,11 +24,3 @@ class UserVillage(UserVillageBase):
 
     class Config:
         orm_mode = True
-
-
-class UserVillageCreate(UserVillageBase):
-    pass
-
-
-class UserVillageUpdate(UserVillageBase):
-    pass
