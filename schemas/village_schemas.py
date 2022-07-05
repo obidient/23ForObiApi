@@ -1,14 +1,15 @@
 import pydantic as pd
+from typing import Optional
 
 
 class VillageBase(pd.BaseModel):
     name: str
     location: str
-    contributed_by: str
 
 
 class Village(VillageBase):
     id: str
+    contributed_by: Optional[str] = None
 
     class Config:
         orm_mode = True
