@@ -8,6 +8,7 @@ import database
 from api import app as api
 from controllers.campaign_images import app as campaign_image
 from controllers.support_group import app as support_group
+from controllers.voters import app as voters
 
 app = FastAPI()
 
@@ -19,11 +20,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+ 
 app.include_router(countries, tags=["Countries"])
 app.include_router(api, tags=["Api"])
 app.include_router(support_group, tags=["Support Group"])
 app.include_router(campaign_image, tags=["Campaign Images"])
+app.include_router(voters, tags=["Voters"])
 
 # Create all database objects
 database.db.create_database()
