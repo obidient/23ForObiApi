@@ -1,6 +1,7 @@
 import bigfastapi
 import uvicorn
 from bigfastapi.countries import app as countries
+from decouple import config
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -12,6 +13,9 @@ from controllers.voters import app as voters
 
 app = FastAPI()
 
+BASE_URL = config("BASE_URL")
+PORT = int(config("PORT"))
+
 origins = ["*"]
 app.add_middleware(
     CORSMiddleware,
@@ -20,7 +24,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
- 
+
 app.include_router(countries, tags=["Countries"])
 app.include_router(api, tags=["Api"])
 app.include_router(support_group, tags=["Support Group"])
@@ -35,12 +39,12 @@ database.db.create_database()
 async def get_root() -> dict:
     return {
         "message": "Welcome to BigFastAPI. This is an example of an API built using BigFastAPI.",
-        "url": "http://127.0.0.1:7001/docs",
-        "api test": "http://127.0.0.1:7001/api/version",
-        "add to db": "http://127.0.0.1:7001/api/test_db_add",
-        "retrieve from db": "http://127.0.0.1:7001/api/test_db_read",
+        "url": f"{BASE_URL}/docs",
+        "api test": f"{BASE_URL}/api/version",
+        "add to db": f"{BASE_URL}/api/test_db_add",
+        "retrieve from db": f"{BASE_URL}/api/test_db_read",
     }
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", port=7005, reload=True)
+    uvicorn.run("main:app", port=PORT, reload=True)
