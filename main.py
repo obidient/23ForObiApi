@@ -40,7 +40,7 @@ database.db.create_database()
 @app.get("/", tags=["Home"])
 async def get_root() -> dict:
     return {
-        "message": "Welcome to BigFastAPI. This is an e3ample of an API built using BigFastAPI.",
+        "message": "Welcome to BigFastAPI. This is an example of an API built using BigFastAPI.",
         "url": f"{BASE_URL}/docs",
         "api test": f"{BASE_URL}/api/version",
         "add to db": f"{BASE_URL}/api/test_db_add",
