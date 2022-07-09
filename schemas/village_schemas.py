@@ -25,3 +25,13 @@ class UserVillage(UserVillageBase):
 
     class Config:
         orm_mode = True
+
+
+class StateDetails(pd.BaseModel):
+    id: str
+    state_code: str
+    current_governor: str
+    state_capital: str
+
+    class Config:
+        orm_mode = True

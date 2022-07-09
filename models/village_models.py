@@ -10,6 +10,13 @@ from sqlalchemy.types import String
 
 UUID_HEX = uuid4().hex
 
+class StateDetails(db.Base):
+    __tablename__ = "state_details"
+    id = Column(String(36), primary_key=True, default=UUID_HEX)
+    state_code = Column(String(2), nullable=False)
+    current_governor = Column(String(50), nullable=True)
+    state_capital = Column(String(50), nullable=True)
+
 
 class Village(db.Base):
     __tablename__ = "villages"

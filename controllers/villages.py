@@ -10,6 +10,18 @@ from schemas import village_schemas
 app = APIRouter()
 
 
+@app.get("/state-details/{state_code}", response_model=village_schemas.StateDetails)
+async def get_state_details(state_code: str, db: Session = fastapi.Depends(get_db)):
+    state_details = db.query(village_models.StateDetails).filter(
+        village_models.StateDetails.state_code == state_code
+    ).first()
+
+    if not state_details:
+        raise fastapi.HTTPException(status_code=404, detail="State not found")
+    
+    return village_schemas.StateDetails.from_orm(state_details)
+
+
 @app.post("/villages/")
 async def create_village(
     village: village_schemas.VillageBase, db: Session = fastapi.Depends(get_db)

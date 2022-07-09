@@ -10,7 +10,7 @@ from schemas import support_group_schemas
 app = APIRouter()
 
 
-@app.post("/support_group/")
+@app.post("/support-group/")
 async def create_support_group(
     support_group: support_group_schemas.SupportGroupBase,
     db: Session = fastapi.Depends(get_db),
