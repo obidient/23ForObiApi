@@ -11,23 +11,22 @@ from schemas import campaign_schemas
 app = APIRouter()
 
 
-# @app.post("/campaign_images/")
+@app.post("/campaign_images/")
 async def create_campaign_image(
     campaign_image: campaign_schemas.CampaignImageBase,
-    user: users_schemas.User,
     db: Session = fastapi.Depends(get_db),
 ):
     db_campaign_image = campaign_models.CampaignImage(
         location=campaign_image.location,
         title=campaign_image.title,
         url=campaign_image.url,
-        contributed_by=user.id,
+        contributed_by=campaign_image.contributed_by,
     )
     db.add(db_campaign_image)
     db.commit()
     db.refresh(db_campaign_image)
     return {
-        "message": "Support Group created succesfully",
+        "message": "Campaign Image added succesfully",
         "support_group": campaign_schemas.CampaignImage.from_orm(db_campaign_image),
     }
 
