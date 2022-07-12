@@ -41,7 +41,6 @@ async def create_village(
         db.commit()
         db.refresh(db_village)
     except Exception as e:
-        print(str(e))
         raise fastapi.HTTPException(status_code=400, detail="Failed to create village")
 
     return {
@@ -58,8 +57,9 @@ async def list_villages_in_a_state(
         village_models.Village.location == state_code
     )
 
-    resp = []
-
+    resp = {"list_of_villages": []}
+    state_vote_count = 0
+    number_of_villages = (villages.count()) * 23
     for village in villages:
         village_id = village.id
         voters_per_village = (
@@ -67,7 +67,8 @@ async def list_villages_in_a_state(
             .filter(voter_models.Voter.village == village_id)
             .count()
         )
-        resp.append(
+        state_vote_count += voters_per_village
+        resp["list_of_villages"].append(
             {
                 "id": village.id,
                 "name": village.name,
@@ -80,7 +81,7 @@ async def list_villages_in_a_state(
                 "top_contributors": [],
             }
         )
-
+    resp["total_state_progress"] = calculate_progress_percentage(state_vote_count, number_of_villages)
     return resp
 
 
