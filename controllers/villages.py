@@ -25,16 +25,21 @@ async def get_state_details(state_code: str, db: Session = fastapi.Depends(get_d
     return village_schemas.StateDetails.from_orm(state_details)
 
 
-# @app.post("/villages/")
+@app.post("/villages/")
 async def create_village(
     village: village_schemas.VillageBase, db: Session = fastapi.Depends(get_db)
 ):
     db_village = village_models.Village(
         name=village.name, location=village.location, contributed_by="None"
     )
-    db.add(db_village)
-    db.commit()
-    db.refresh(db_village)
+    try:
+        db.add(db_village)
+        db.commit()
+        db.refresh(db_village)
+    except Exception as e:
+        print(str(e))
+        raise fastapi.HTTPException(status_code=400, detail="Failed to create village")
+
     return {
         "message": "Village created succesfully",
         "village": village_schemas.Village.from_orm(db_village),
@@ -65,8 +70,10 @@ async def list_villages_in_a_state(
                 "state": village.location,
                 "contributed_by": village.contributed_by,
                 "voters": voters_per_village,
-                "progress_percentage": calculate_progress_percentage(voters_per_village),
-                "top_contributors": []
+                "progress_percentage": calculate_progress_percentage(
+                    voters_per_village
+                ),
+                "top_contributors": [],
             }
         )
 

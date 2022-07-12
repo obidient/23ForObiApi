@@ -26,6 +26,11 @@ async def list_voters_in_a_village(
 async def add_voters_to_village(
     voter: voter_schemas.VoterSchemaBase, db: Session = fastapi.Depends(get_db)
 ):
+    # check if village exist
+    village = db.query(village_models.Village).get(voter.village)
+    if not village:
+        raise fastapi.HTTPException(status_code=400, detail="Village does not exist")
+    
     db_voters_to_village = voter_models.Voter(
         name=voter.name,
         village=voter.village,
@@ -34,12 +39,6 @@ async def add_voters_to_village(
         importance=voter.importance,
         delivered_by="placeholder",
     )
-
-    # check if village exist
-    try:
-        db.query(village_models.Village).get(voter.village)
-    except Exception as e:
-        raise fastapi.HTTPException(status_code=400, detail="Village does not exist")
 
     db.add(db_voters_to_village)
     db.commit()
