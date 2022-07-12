@@ -1,4 +1,5 @@
 from typing import List
+from uuid import uuid4
 
 import fastapi
 import sqlalchemy.orm as Session
@@ -16,7 +17,9 @@ async def create_support_group(
     db: Session = fastapi.Depends(get_db),
 ):
     db_support_group = support_group_models.SupportGroup(
-        name=support_group.name, votes_delivered=support_group.votes_delivered
+        id=uuid4().hex,
+        name=support_group.name,
+        votes_delivered=support_group.votes_delivered,
     )
     db.add(db_support_group)
     db.commit()

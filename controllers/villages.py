@@ -1,4 +1,5 @@
 from typing import List
+from uuid import uuid4
 
 import fastapi
 import sqlalchemy.orm as Session
@@ -30,7 +31,10 @@ async def create_village(
     village: village_schemas.VillageBase, db: Session = fastapi.Depends(get_db)
 ):
     db_village = village_models.Village(
-        name=village.name, location=village.location, contributed_by="None"
+        id=uuid4().hex,
+        name=village.name,
+        location=village.location,
+        contributed_by="None",
     )
     try:
         db.add(db_village)

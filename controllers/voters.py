@@ -1,4 +1,5 @@
 from typing import List
+from uuid import uuid4
 
 import fastapi
 import sqlalchemy.orm as Session
@@ -30,8 +31,9 @@ async def add_voters_to_village(
     village = db.query(village_models.Village).get(voter.village)
     if not village:
         raise fastapi.HTTPException(status_code=400, detail="Village does not exist")
-    
+
     db_voters_to_village = voter_models.Voter(
+        id=uuid4().hex,
         name=voter.name,
         village=voter.village,
         contact=voter.contact,

@@ -1,4 +1,5 @@
 from typing import List
+from uuid import uuid4
 
 import fastapi
 import sqlalchemy.orm as Session
@@ -17,6 +18,7 @@ async def create_campaign_image(
     db: Session = fastapi.Depends(get_db),
 ):
     db_campaign_image = campaign_models.CampaignImage(
+        id=uuid4().hex,
         location=campaign_image.location,
         title=campaign_image.title,
         url=campaign_image.url,

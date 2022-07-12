@@ -10,7 +10,7 @@ from utils.progress import calculate_progress_percentage
 app = APIRouter()
 
 
-@app.post("/get-overall-progress-village/{village_id}")
+@app.get("/get-overall-progress-village/{village_id}")
 async def get_overall_progress_village(
     village_id: str,
     db: Session = fastapi.Depends(get_db),
