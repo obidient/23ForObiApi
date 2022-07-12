@@ -15,7 +15,7 @@ class VoterSchemaBase(pd.BaseModel):
 class VoterSchema(VoterSchemaBase):
     id: str
     date_delivered: dt.datetime
-    contributed_by: str
+    delivered_by: str
 
     class Config:
         orm_mode = True

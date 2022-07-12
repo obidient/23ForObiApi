@@ -11,6 +11,7 @@ from controllers.campaign_images import app as campaign_image
 from controllers.support_group import app as support_group
 from controllers.villages import app as villages
 from controllers.voters import app as voters
+from controllers.progress import app as progress
 
 app = FastAPI()
 
@@ -32,6 +33,7 @@ app.include_router(support_group, tags=["Support Group"])
 app.include_router(campaign_image, tags=["Campaign Images"])
 app.include_router(voters, tags=["Voters"])
 app.include_router(villages, tags=["Villages"])
+app.include_router(progress, tags=["Progress"])
 
 # Create all database objects
 database.db.create_database()

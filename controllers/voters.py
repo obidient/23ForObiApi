@@ -32,11 +32,12 @@ async def add_voters_to_village(
         contact=voter.contact,
         notes=voter.notes,
         importance=voter.importance,
+        delivered_by="placeholder",
     )
 
     # check if village exist
     try:
-        db.query(village_models.Village).get(village_models.Village.id == voter.village)
+        db.query(village_models.Village).get(voter.village)
     except Exception as e:
         raise fastapi.HTTPException(status_code=400, detail="Village does not exist")
 

@@ -4,25 +4,28 @@ import fastapi
 import sqlalchemy.orm as Session
 from bigfastapi.db.database import get_db
 from fastapi import APIRouter
-from models import village_models
+from models import village_models, voter_models
 from schemas import village_schemas
+from utils.progress import calculate_progress_percentage
 
 app = APIRouter()
 
 
 @app.get("/state-details/{state_code}", response_model=village_schemas.StateDetails)
 async def get_state_details(state_code: str, db: Session = fastapi.Depends(get_db)):
-    state_details = db.query(village_models.StateDetails).filter(
-        village_models.StateDetails.state_code == state_code
-    ).first()
+    state_details = (
+        db.query(village_models.StateDetails)
+        .filter(village_models.StateDetails.state_code == state_code)
+        .first()
+    )
 
     if not state_details:
         raise fastapi.HTTPException(status_code=404, detail="State not found")
-    
+
     return village_schemas.StateDetails.from_orm(state_details)
 
 
-@app.post("/villages/")
+# @app.post("/villages/")
 async def create_village(
     village: village_schemas.VillageBase, db: Session = fastapi.Depends(get_db)
 ):
@@ -38,7 +41,7 @@ async def create_village(
     }
 
 
-@app.get("/villages/{state_code}", response_model=List[village_schemas.Village])
+@app.get("/villages/{state_code}")
 async def list_villages_in_a_state(
     state_code: str, db: Session = fastapi.Depends(get_db)
 ):
@@ -46,7 +49,28 @@ async def list_villages_in_a_state(
         village_models.Village.location == state_code
     )
 
-    return list(map(village_schemas.Village.from_orm, villages))
+    resp = []
+
+    for village in villages:
+        village_id = village.id
+        voters_per_village = (
+            db.query(voter_models.Voter)
+            .filter(voter_models.Voter.village == village_id)
+            .count()
+        )
+        resp.append(
+            {
+                "id": village.id,
+                "name": village.name,
+                "state": village.location,
+                "contributed_by": village.contributed_by,
+                "voters": voters_per_village,
+                "progress_percentage": calculate_progress_percentage(voters_per_village),
+                "top_contributors": []
+            }
+        )
+
+    return resp
 
 
 @app.get("/village-details/{village_id}", response_model=village_schemas.Village)
@@ -76,10 +100,9 @@ async def get_villages_by_contributor(
 
     return list(map(village_schemas.Village.from_orm, villages))
 
+
 @app.get("/village-search/{search_term}", response_model=List[village_schemas.Village])
-async def search_villages(
-    search_term: str, db: Session = fastapi.Depends(get_db)
-):
+async def search_villages(search_term: str, db: Session = fastapi.Depends(get_db)):
     villages = db.query(village_models.Village).filter(
         village_models.Village.name.ilike("%" + search_term + "%")
     )
