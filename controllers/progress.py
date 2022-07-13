@@ -4,7 +4,7 @@ import fastapi
 import sqlalchemy.orm as Session
 from bigfastapi.db.database import get_db
 from fastapi import APIRouter
-from models import voter_models
+from models import village_models, voter_models
 from utils.progress import calculate_progress_percentage
 
 app = APIRouter()
@@ -28,4 +28,21 @@ async def get_overall_progress_village(
     response["number_of_voters"] = voters
     response["total_number_of_voters_expected"] = 23
     response["progress_percentage"] = calculate_progress_percentage(voters, 23)
+    return response
+
+
+@app.get("/overall-progress")
+async def get_overall_progress(
+    db: Session = fastapi.Depends(get_db),
+):
+    response = {
+        "progress_percentage": 0,
+    }
+    # number of voters
+    voters = db.query(voter_models.Voter).count()
+
+    # number of villages
+    villages = (db.query(village_models.Village).count()) * 23
+
+    response["progress_percentage"] = calculate_progress_percentage(voters, villages)
     return response
