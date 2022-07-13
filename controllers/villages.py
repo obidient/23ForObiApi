@@ -53,20 +53,17 @@ async def create_village(
 async def list_villages_in_a_state(
     state_code: str, db: Session = fastapi.Depends(get_db)
 ):
-    villages = db.query(village_models.Village).filter(
-        village_models.Village.location == state_code
+    villages = (
+        db.query(village_models.Village)
+        .options(Session.lazyload(village_models.Village.voters))
+        .filter(village_models.Village.location == state_code)
     )
 
     resp = {"list_of_villages": []}
     state_vote_count = 0
     number_of_villages = (villages.count()) * 23
     for village in villages:
-        village_id = village.id
-        voters_per_village = (
-            db.query(voter_models.Voter)
-            .filter(voter_models.Voter.village == village_id)
-            .count()
-        )
+        voters_per_village = len(village.voters)
         state_vote_count += voters_per_village
         resp["list_of_villages"].append(
             {
@@ -81,7 +78,9 @@ async def list_villages_in_a_state(
                 "top_contributors": [],
             }
         )
-    resp["total_state_progress"] = calculate_progress_percentage(state_vote_count, number_of_villages)
+    resp["villages_in_control"] = calculate_progress_percentage(
+        state_vote_count, number_of_villages
+    )
     return resp
 
 

@@ -5,8 +5,10 @@ import bigfastapi.db.database as db
 from bigfastapi.models.location_models import Location
 from bigfastapi.models.user_models import User
 from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Column
 from sqlalchemy.types import String
+
 
 class StateDetails(db.Base):
     __tablename__ = "state_details"
@@ -22,6 +24,8 @@ class Village(db.Base):
     name = Column(String(255), index=True)
     location = Column(String(255), ForeignKey(Location.id))
     contributed_by = Column(String(255), ForeignKey(User.id))
+
+    voters = relationship("Voter", back_populates="village")
 
 
 class UserVillage(db.Base):

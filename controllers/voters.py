@@ -28,14 +28,14 @@ async def add_voters_to_village(
     voter: voter_schemas.VoterSchemaBase, db: Session = fastapi.Depends(get_db)
 ):
     # check if village exist
-    village = db.query(village_models.Village).get(voter.village)
+    village = db.query(village_models.Village).get(voter.village_id)
     if not village:
         raise fastapi.HTTPException(status_code=400, detail="Village does not exist")
 
     db_voters_to_village = voter_models.Voter(
         id=uuid4().hex,
         name=voter.name,
-        village=voter.village,
+        village=village,
         contact=voter.contact,
         notes=voter.notes,
         importance=voter.importance,

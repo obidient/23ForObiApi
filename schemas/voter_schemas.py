@@ -6,7 +6,7 @@ import pydantic as pd
 
 class VoterSchemaBase(pd.BaseModel):
     name: str
-    village: Optional[str] = None
+    village_id: Optional[str] = None
     contact: Optional[str] = None
     notes: Optional[str] = None
     importance: Optional[str] = None
