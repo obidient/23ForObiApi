@@ -59,6 +59,9 @@ async def list_villages_in_a_state(
         .filter(village_models.Village.location == state_code)
     )
 
+    if len(list((villages))) == 0:
+        raise fastapi.HTTPException(status_code=404, detail="Village(s) not found")
+
     resp = {"list_of_villages": []}
     state_vote_count = 0
     number_of_villages = (villages.count()) * 23
