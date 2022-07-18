@@ -22,16 +22,16 @@ async def get_overall_progress_village(
     }
     try:
         voters = (
-        db.query(voter_models.Voter)
-        .filter(voter_models.Voter.village == village_id)
-        .count()
+            db.query(voter_models.Voter)
+            .filter(voter_models.Voter.village == village_id)
+            .count()
         )
+        response["number_of_voters"] = voters
+        response["total_number_of_voters_expected"] = 23
+        response["progress_percentage"] = calculate_progress_percentage(voters, 23)
     except Exception as e:
-        raise fastapi.HTTPException(status_code=404, detail="No voters found")
+        raise fastapi.HTTPException(status_code=404, detail=str(e.__str__()))
 
-    response["number_of_voters"] = voters
-    response["total_number_of_voters_expected"] = 23
-    response["progress_percentage"] = calculate_progress_percentage(voters, 23)
     return response
 
 
