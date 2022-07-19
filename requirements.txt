@@ -97,7 +97,7 @@ six==1.16.0
 sniffio==1.2.0
 sortedcontainers==2.4.0
 SQLAlchemy==1.4.39
-starlette==0.20.4
+starlette
 stripe==3.5.0
 tokenize-rt==4.2.1
 toml==0.10.2
