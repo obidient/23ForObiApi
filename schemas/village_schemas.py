@@ -4,7 +4,7 @@ from typing import Optional
 
 class VillageBase(pd.BaseModel):
     name: str
-    location: str
+    location_id: str
 
 
 class Village(VillageBase):
@@ -29,9 +29,9 @@ class UserVillage(UserVillageBase):
 
 class StateDetails(pd.BaseModel):
     id: str
-    state_code: str
-    current_governor: str
-    state_capital: str
+    country: str
+    current_governor: Optional[str] = None
+    state_capital: Optional[str] = None
 
     class Config:
         orm_mode = True

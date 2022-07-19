@@ -15,7 +15,7 @@ class VoterSchemaBase(pd.BaseModel):
 class VoterSchema(VoterSchemaBase):
     id: str
     date_delivered: dt.datetime
-    delivered_by: str
+    delivered_by: Optional[str] = None
 
     class Config:
         orm_mode = True

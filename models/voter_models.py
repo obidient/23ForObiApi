@@ -2,7 +2,6 @@ import datetime
 from uuid import uuid4
 
 import bigfastapi.db.database as db
-from bigfastapi.models.contact_model import ContactUs
 from bigfastapi.models.user_models import User
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
@@ -19,11 +18,11 @@ class Voter(db.Base):
     id = Column(String(50), primary_key=True, index=True, default=UUID_HEX)
     village_id = Column(String(255), ForeignKey("villages.id"))
     name = Column(String(255), index=True)
-    contact = Column(String(255), ForeignKey(ContactUs.id))
+    contact = Column(String(255), nullable=True)
     notes = Column(String(255), index=True)
     importance = Column(String(255), index=True)
     date_delivered = Column(DateTime, default=datetime.datetime.utcnow)
-    delivered_by = Column(String(255), ForeignKey(User.id))
+    delivered_by = Column(String(255), ForeignKey(User.id), nullable=True)
 
     village = relationship(Village, back_populates="voters")
 

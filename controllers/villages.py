@@ -15,8 +15,8 @@ app = APIRouter()
 @app.get("/state-details/{state_code}", response_model=village_schemas.StateDetails)
 async def get_state_details(state_code: str, db: Session = fastapi.Depends(get_db)):
     state_details = (
-        db.query(village_models.StateDetails)
-        .filter(village_models.StateDetails.state_code == state_code)
+        db.query(village_models.LocationCustom)
+        .filter(village_models.LocationCustom.id == state_code)
         .first()
     )
 
@@ -26,22 +26,24 @@ async def get_state_details(state_code: str, db: Session = fastapi.Depends(get_d
     return village_schemas.StateDetails.from_orm(state_details)
 
 
-@app.post("/villages/")
+@app.post("/villages")
 async def create_village(
     village: village_schemas.VillageBase, db: Session = fastapi.Depends(get_db)
 ):
+    # get location
+    location = db.query(village_models.LocationCustom).get(village.location_id)
+
     db_village = village_models.Village(
         id=uuid4().hex,
         name=village.name,
-        location=village.location,
-        contributed_by="None",
+        location=location,
     )
     try:
         db.add(db_village)
         db.commit()
         db.refresh(db_village)
     except Exception as e:
-        raise fastapi.HTTPException(status_code=400, detail="Failed to create village")
+        raise fastapi.HTTPException(status_code=400, detail=str(e.__str__()))
 
     return {
         "message": "Village created succesfully",
@@ -56,7 +58,7 @@ async def list_villages_in_a_state(
     villages = (
         db.query(village_models.Village)
         .options(Session.lazyload(village_models.Village.voters))
-        .filter(village_models.Village.location == state_code)
+        .filter(village_models.Village.location_id == state_code)
     )
 
     if len(list((villages))) == 0:

@@ -38,8 +38,7 @@ async def add_voters_to_village(
         village=village,
         contact=voter.contact,
         notes=voter.notes,
-        importance=voter.importance,
-        delivered_by="placeholder",
+        importance=voter.importance
     )
 
     db.add(db_voters_to_village)
