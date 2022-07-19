@@ -17,7 +17,7 @@ async def list_voters_in_a_village(
     village_id: str, db: Session = fastapi.Depends(get_db)
 ):
     voters = db.query(voter_models.Voter).filter(
-        voter_models.Voter.village == village_id
+        voter_models.Voter.village_id == village_id
     )
 
     return list(map(voter_schemas.VoterSchema.from_orm, voters))
