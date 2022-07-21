@@ -22,7 +22,6 @@ class UserCustom(db.Base):
     last_name = Column(String(255))
     phone_number = Column(String(50))
     phone_country_code = Column(String(7))
-    password_hash = Column(Text(), nullable=False)
     image_url = Column(Text())
     device_id = Column(Text())
     google_id = Column(String(255))

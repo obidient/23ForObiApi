@@ -1,6 +1,6 @@
-from multiprocessing.spawn import import_main_path
 import random
 import string
+from multiprocessing.spawn import import_main_path
 from uuid import uuid4
 
 import fastapi
@@ -10,12 +10,12 @@ from authlib.integrations.starlette_client import OAuth
 from bigfastapi.auth_api import create_access_token
 from bigfastapi.db.database import get_db
 from bigfastapi.models.organization_models import Organization
+from bigfastapi.models.user_models import User
 from bigfastapi.utils import settings
 from fastapi import APIRouter, HTTPException, Request, status
-from models.models import UserCustom
-from starlette.config import Config
-from google.oauth2 import id_token
 from google.auth.transport import requests
+from google.oauth2 import id_token
+from starlette.config import Config
 
 app = APIRouter()
 
@@ -51,15 +51,17 @@ CREDENTIALS_EXCEPTION = HTTPException(
 )
 
 
-@app.get("/google/token")
-async def auth(request: Request, token:str, db: orm.Session = fastapi.Depends(get_db)):
+@app.post("/google/token")
+async def auth(token: str, db: orm.Session = fastapi.Depends(get_db)):
 
     try:
-        user_data = id_token.verify_oauth2_token(token, requests.Request(), GOOGLE_CLIENT_ID)
-
+        user_data = id_token.verify_oauth2_token(
+            token, requests.Request(), GOOGLE_CLIENT_ID
+        )
         check_user = valid_email_from_db(user_data["email"], db)
-    
+
     except Exception as e:
+        print(str(e.__str__()))
         raise CREDENTIALS_EXCEPTION
 
     if check_user:
@@ -75,22 +77,19 @@ async def auth(request: Request, token:str, db: orm.Session = fastapi.Depends(ge
     ran = "".join(random.choices(string.ascii_uppercase + string.digits, k=S))
     n = str(ran)
 
-    user_obj = UserCustom(
+    user_obj = User(
         id=uuid4().hex,
-        email=user_data.email,
-        password=_hash.sha256_crypt.hash(n),
-        first_name=user_data.given_name,
-        last_name=user_data.family_name,
+        email=user_data["email"],
+        first_name=user_data["given_name"],
+        last_name=user_data["family_name"],
+        password_hash=_hash.sha256_crypt.hash(n),
         phone_number=n,
         is_active=True,
         is_verified=True,
-        country_code="",
         is_deleted=False,
-        country="",
-        state="",
         google_id="",
-        google_image=user_data.picture,
-        image=user_data.picture,
+        google_image_url=user_data["picture"],
+        image_url=user_data["picture"],
         device_id="",
     )
 
@@ -98,14 +97,15 @@ async def auth(request: Request, token:str, db: orm.Session = fastapi.Depends(ge
     db.commit()
     db.refresh(user_obj)
 
-    token = access_token["id_token"]
+    access_token = await create_access_token(data={"user_id": user_obj.id}, db=db)
+
     response = {
-        "access_token": token,
-        "user_id": user_id,
+        "access_token": access_token,
+        "user_id": user_obj.id,
     }
     return response
 
 
 def valid_email_from_db(email, db: orm.Session = fastapi.Depends(get_db)):
-    found_user = db.query(UserCustom).filter(UserCustom.email == email).first()
+    found_user = db.query(User).filter(User.email == email).first()
     return found_user
