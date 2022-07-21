@@ -1,13 +1,13 @@
-import bigfastapi
 import uvicorn
-from bigfastapi.countries import app as countries
 from decouple import config
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 
 import database
 from api import app as api
 from controllers.campaign_images import app as campaign_image
+from controllers.google_auth import app as google_auth
 from controllers.progress import app as progress
 from controllers.states import app as states
 from controllers.support_group import app as support_group
@@ -27,9 +27,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(SessionMiddleware, secret_key="maihoonjiyan")
 
 app.include_router(api, tags=["Api"])
 app.include_router(campaign_image, tags=["Campaign Images"])
+app.include_router(google_auth, tags=["Google Auth"])
 app.include_router(progress, tags=["Progress"])
 app.include_router(states, tags=["States"])
 app.include_router(support_group, tags=["Support Group"])
