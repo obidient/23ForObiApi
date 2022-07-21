@@ -1,5 +1,6 @@
-import pydantic as pd
 from typing import Optional
+
+import pydantic as pd
 
 
 class VillageBase(pd.BaseModel):
@@ -32,6 +33,9 @@ class StateDetails(pd.BaseModel):
     country: str
     current_governor: Optional[str] = None
     state_capital: Optional[str] = None
+    state_name: Optional[str] = None
+    current_governor_appointment_date: Optional[str] = None
+    last_vote_direction: Optional[str] = None
 
     class Config:
         orm_mode = True

@@ -1,14 +1,13 @@
 import json
-from uuid import uuid4
 
 import fastapi
 import pkg_resources
 import sqlalchemy.orm as Session
 from bigfastapi.db.database import get_db
-from models.village_models import LocationCustom
 from bigfastapi.schemas.countries_schemas import State
 from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import JSONResponse
+from models.village_models import LocationCustom
 
 app = APIRouter(tags=["States"])
 
@@ -41,6 +40,7 @@ def get_country_states(country_code: str, db: Session = fastapi.Depends(get_db))
             loc = LocationCustom(
                 id=state["state_code"],
                 country=data["name"],
+                state_name=state["name"],
             )
             db.merge(loc)
             db.commit()

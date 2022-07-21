@@ -24,7 +24,10 @@ class LocationCustom(db.Base):
     id = Column(String(255), primary_key=True, index=True, default="QQ")
     country = Column(String(255), nullable=False)
     current_governor = Column(String(50), nullable=True)
+    state_name = Column(String(50), nullable=True)
     state_capital = Column(String(50), nullable=True)
+    current_governor_appointment_date = Column(String(50), nullable=True)
+    last_vote_direction = Column(String(50), nullable=True)
 
     village = relationship("Village", back_populates="location")
 
