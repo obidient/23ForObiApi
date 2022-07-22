@@ -71,3 +71,4 @@ isort
 autoflake
 pre-commit
 pyupgrade
+google-auth
