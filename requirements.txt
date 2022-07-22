@@ -72,3 +72,4 @@ autoflake
 pre-commit
 pyupgrade
 google-auth
+python-decouple

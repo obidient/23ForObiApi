@@ -45,6 +45,6 @@ async def add_voters_to_village(
     db.commit()
     db.refresh(db_voters_to_village)
     return {
-        "message": "Support Group created succesfully",
+        "message": "Voter created succesfully",
         "support_group": voter_schemas.VoterSchema.from_orm(db_voters_to_village),
     }
