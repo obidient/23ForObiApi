@@ -3,7 +3,7 @@ from uuid import uuid4
 
 import bigfastapi.db.database as db
 from bigfastapi.models.user_models import User
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, Integer
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Column
 from sqlalchemy.types import String
@@ -27,6 +27,8 @@ class LocationCustom(db.Base):
     state_capital = Column(String(50), nullable=True)
     current_governor_appointment_date = Column(String(50), nullable=True)
     last_vote_direction = Column(String(50), nullable=True)
+    progress = Column(Integer(), nullable=True)
+    vote_control = Column(Integer(), nullable=True)
 
     village = relationship("Village", back_populates="location")
 

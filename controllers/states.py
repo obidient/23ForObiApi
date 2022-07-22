@@ -1,21 +1,24 @@
 import json
+from typing import List
 
 import fastapi
 import pkg_resources
 import sqlalchemy.orm as Session
 from bigfastapi.db.database import get_db
-from bigfastapi.schemas.countries_schemas import State
 from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import JSONResponse
 from models.village_models import LocationCustom
+from schemas.village_schemas import StateDetails
+from utils.progress import calculate_progress_percentage
 
 app = APIRouter(tags=["States"])
 
 COUNTRIES_DATA_PATH = pkg_resources.resource_filename("bigfastapi", "data/")
 
 
-@app.get("/{country_code}/states", response_model=State, status_code=200)
-def get_country_states(country_code: str, db: Session = fastapi.Depends(get_db)):
+@app.get("/...")
+def testss(db: Session = fastapi.Depends(get_db)):
+    country_code = "NG"
     country_data = []
     with open(COUNTRIES_DATA_PATH + "/countries.json") as file:
         countries = json.load(file)
@@ -49,7 +52,20 @@ def get_country_states(country_code: str, db: Session = fastapi.Depends(get_db))
             print(str(e))
             pass
 
-        state["progress"] = 0
-        state["vote_control"] = 0
 
-    return JSONResponse(status_code=status.HTTP_200_OK, content=data)
+@app.get("/states", response_model=List[StateDetails])
+def get_country_states(db: Session = fastapi.Depends(get_db)):
+    all_states = (
+        db.query(LocationCustom).options(Session.lazyload(LocationCustom.village)).all()
+    )
+
+    for state in all_states:
+        number_of_voters = 0
+        number_of_villages = len(state.village) * 23
+        for village in state.village:
+            number_of_voters += len(village.voters)
+        state.progress = calculate_progress_percentage(
+            number_of_voters, number_of_villages
+        )
+        state.vote_control = state.progress
+    return [StateDetails.from_orm(state) for state in all_states]

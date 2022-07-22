@@ -36,6 +36,8 @@ class StateDetails(pd.BaseModel):
     state_name: Optional[str] = None
     current_governor_appointment_date: Optional[str] = None
     last_vote_direction: Optional[str] = None
+    progress: Optional[int] = 0
+    vote_control: Optional[int] = 0
 
     class Config:
         orm_mode = True

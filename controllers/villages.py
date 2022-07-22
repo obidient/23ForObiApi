@@ -83,6 +83,7 @@ async def list_villages_in_a_state(
                 "top_contributors": [],
             }
         )
+    
     resp["villages_in_control"] = calculate_progress_percentage(
         state_vote_count, number_of_villages
     )
