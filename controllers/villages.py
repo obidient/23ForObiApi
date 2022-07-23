@@ -62,7 +62,7 @@ async def list_villages_in_a_state(
     )
 
     if len(list((villages))) == 0:
-        raise fastapi.HTTPException(status_code=404, detail="Village(s) not found")
+        return []
 
     resp = {"list_of_villages": []}
     state_vote_count = 0
