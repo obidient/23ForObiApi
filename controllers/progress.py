@@ -41,6 +41,7 @@ async def get_overall_progress(
 ):
     response = {
         "progress_percentage": 0,
+        "total_number_of_voters": 0,
     }
     # number of voters
     voters = db.query(voter_models.Voter).count()
@@ -49,4 +50,6 @@ async def get_overall_progress(
     villages = (db.query(village_models.Village).count()) * 23
 
     response["progress_percentage"] = calculate_progress_percentage(voters, villages)
+    response["total_number_of_voters"] = voters
+    
     return response
