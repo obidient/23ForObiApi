@@ -5,7 +5,7 @@ import fastapi
 import sqlalchemy.orm as Session
 from bigfastapi.db.database import get_db
 from fastapi import APIRouter
-from models import village_models, voter_models
+from models import village_models
 from schemas import village_schemas
 from utils.progress import calculate_progress_percentage
 
@@ -83,17 +83,18 @@ async def list_villages_in_a_state(
                 "top_contributors": [],
             }
         )
-    
+
     resp["villages_in_control"] = calculate_progress_percentage(
         state_vote_count, number_of_villages
     )
     return resp
 
 
-@app.get("/village-details/{village_id}", response_model=village_schemas.Village)
+@app.get("/village-details/{village_id}")
 async def get_village_details(village_id: str, db: Session = fastapi.Depends(get_db)):
     village = (
         db.query(village_models.Village)
+        .options(Session.lazyload(village_models.Village.voters))
         .filter(village_models.Village.id == village_id)
         .first()
     )
@@ -101,7 +102,17 @@ async def get_village_details(village_id: str, db: Session = fastapi.Depends(get
     if not village:
         raise fastapi.HTTPException(status_code=404, detail="Village not found")
 
-    return village_schemas.Village.from_orm(village)
+    resp = {
+        "id": village.id,
+        "name": village.name,
+        "state": village.location,
+        "contributed_by": village.contributed_by,
+        "voters": len(village.voters),
+        "progress_percentage": calculate_progress_percentage(len(village.voters)),
+        "top_contributors": [],
+    }
+
+    return resp
 
 
 @app.get(
