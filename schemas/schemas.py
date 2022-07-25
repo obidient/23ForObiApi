@@ -6,3 +6,10 @@ class TestSchema(BaseModel):
     class Config:
         orm_mode = True
 
+
+
+class GoogleToken(BaseModel):
+    token: str
+
+    class Config:
+        orm_mode = True

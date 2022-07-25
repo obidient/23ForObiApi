@@ -16,6 +16,7 @@ from fastapi import APIRouter, HTTPException, Request, status
 from google.auth.transport import requests
 from google.oauth2 import id_token
 from starlette.config import Config
+from schemas.schemas import GoogleToken
 
 app = APIRouter()
 
@@ -52,11 +53,10 @@ CREDENTIALS_EXCEPTION = HTTPException(
 
 
 @app.post("/google/token")
-async def auth(token: str, db: orm.Session = fastapi.Depends(get_db)):
-
+async def google_auth(token: GoogleToken, db: orm.Session = fastapi.Depends(get_db)):
     try:
         user_data = id_token.verify_oauth2_token(
-            token, requests.Request(), GOOGLE_CLIENT_ID
+            token.token, requests.Request(), GOOGLE_CLIENT_ID
         )
         check_user = valid_email_from_db(user_data["email"], db)
 
