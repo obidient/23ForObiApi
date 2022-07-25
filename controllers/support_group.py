@@ -32,7 +32,11 @@ async def create_support_group(
 
 @app.get("/support-group/", response_model=List[support_group_schemas.SupportGroup])
 async def get_support_group(db: Session = fastapi.Depends(get_db)):
-    support_group = db.query(support_group_models.SupportGroup).all()
+    support_group = (
+        db.query(support_group_models.SupportGroup)
+        .filter(support_group_models.SupportGroup.is_active == True)
+        .all()
+    )
     return list(map(support_group_schemas.SupportGroup.from_orm, support_group))
 
 

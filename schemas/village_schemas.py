@@ -38,6 +38,7 @@ class StateDetails(pd.BaseModel):
     last_vote_direction: Optional[str] = None
     progress: Optional[int] = 0
     vote_control: Optional[int] = 0
+    slug: Optional[str] = None
 
     class Config:
         orm_mode = True

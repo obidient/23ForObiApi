@@ -29,6 +29,7 @@ class LocationCustom(db.Base):
     last_vote_direction = Column(String(50), nullable=True)
     progress = Column(Integer(), nullable=True)
     vote_control = Column(Integer(), nullable=True)
+    slug = Column(String(255), nullable=True)
 
     village = relationship("Village", back_populates="location")
 
