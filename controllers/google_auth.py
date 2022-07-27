@@ -11,6 +11,7 @@ from bigfastapi.auth_api import create_access_token
 from bigfastapi.db.database import get_db
 from bigfastapi.models.organization_models import Organization
 from bigfastapi.models.user_models import User
+from bigfastapi.schemas.users_schemas import User as UserSchema
 from bigfastapi.utils import settings
 from fastapi import APIRouter, HTTPException, Request, status
 from google.auth.transport import requests
@@ -65,11 +66,11 @@ async def google_auth(token: GoogleToken, db: orm.Session = fastapi.Depends(get_
         raise CREDENTIALS_EXCEPTION
 
     if check_user:
-        user_id = str(check_user.id)
+        user_id = check_user
         access_token = await create_access_token(data={"user_id": check_user.id}, db=db)
         response = {
             "access_token": access_token,
-            "user_id": user_id,
+            "user": UserSchema.from_orm(user_id),
         }
         return response
 
@@ -101,7 +102,7 @@ async def google_auth(token: GoogleToken, db: orm.Session = fastapi.Depends(get_
 
     response = {
         "access_token": access_token,
-        "user_id": user_obj.id,
+        "user": UserSchema.from_orm(user_obj),
     }
     return response
 
