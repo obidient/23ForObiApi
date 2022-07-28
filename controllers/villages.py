@@ -4,10 +4,12 @@ from uuid import uuid4
 import fastapi
 import sqlalchemy.orm as Session
 from bigfastapi.db.database import get_db
+from bigfastapi.models import user_models
+from bigfastapi.schemas import users_schemas
 from fastapi import APIRouter
 from models import village_models
 from schemas import village_schemas
-from utils.progress import calculate_progress_percentage
+from utils.progress import calculate_progress_percentage, top_contributors_in_a_village
 
 app = APIRouter()
 
@@ -68,6 +70,14 @@ async def list_villages_in_a_state(
     state_vote_count = 0
     number_of_villages = (villages.count()) * 23
     for village in villages:
+        top_five = top_contributors_in_a_village(village.voters)
+
+        top_five_details = [
+            users_schemas.User.from_orm(db.query(user_models.User).get(x))
+            for x in top_five
+            if x is not None
+        ]
+
         voters_per_village = len(village.voters)
         state_vote_count += voters_per_village
         resp["list_of_villages"].append(
@@ -80,7 +90,7 @@ async def list_villages_in_a_state(
                 "progress_percentage": calculate_progress_percentage(
                     voters_per_village
                 ),
-                "top_contributors": [],
+                "top_contributors": top_five_details,
             }
         )
 
@@ -102,6 +112,14 @@ async def get_village_details(village_id: str, db: Session = fastapi.Depends(get
     if not village:
         raise fastapi.HTTPException(status_code=404, detail="Village not found")
 
+    top_five = top_contributors_in_a_village(village.voters)
+
+    top_five_details = [
+        users_schemas.User.from_orm(db.query(user_models.User).get(x))
+        for x in top_five
+        if x is not None
+    ]
+
     resp = {
         "id": village.id,
         "name": village.name,
@@ -109,7 +127,7 @@ async def get_village_details(village_id: str, db: Session = fastapi.Depends(get
         "contributed_by": village.contributed_by,
         "voters": len(village.voters),
         "progress_percentage": calculate_progress_percentage(len(village.voters)),
-        "top_contributors": [],
+        "top_contributors": top_five_details,
     }
 
     return resp
