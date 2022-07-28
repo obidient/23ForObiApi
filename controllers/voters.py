@@ -3,9 +3,10 @@ from uuid import uuid4
 
 import fastapi
 import sqlalchemy.orm as Session
+from bigfastapi.auth_api import is_authenticated
 from bigfastapi.db.database import get_db
 from bigfastapi.schemas import users_schemas
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from models import village_models, voter_models
 from schemas import voter_schemas
 
@@ -23,9 +24,23 @@ async def list_voters_in_a_village(
     return list(map(voter_schemas.VoterSchema.from_orm, voters))
 
 
+@app.get("/voters-by-contributor", response_model=List[voter_schemas.VoterSchema])
+async def list_voters_by_contributor(
+    db: Session = fastapi.Depends(get_db),
+    user: users_schemas.User = Depends(is_authenticated),
+):
+    voters = db.query(voter_models.Voter).filter(
+        voter_models.Voter.delivered_by == user.id
+    )
+
+    return list(map(voter_schemas.VoterSchema.from_orm, voters))
+
+
 @app.post("/voters")
 async def add_voters_to_village(
-    voter: voter_schemas.VoterSchemaBase, db: Session = fastapi.Depends(get_db)
+    voter: voter_schemas.VoterSchemaBase,
+    user: users_schemas.User = Depends(is_authenticated),
+    db: Session = fastapi.Depends(get_db),
 ):
     # check if village exist
     village = db.query(village_models.Village).get(voter.village_id)
@@ -38,7 +53,8 @@ async def add_voters_to_village(
         village=village,
         contact=voter.contact,
         notes=voter.notes,
-        importance=voter.importance
+        importance=voter.importance,
+        delivered_by=user.id,
     )
 
     db.add(db_voters_to_village)
