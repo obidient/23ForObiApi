@@ -13,7 +13,7 @@ Python
 This project relies heavily on [BigFastAPI](https://bigfa.st/) and [FastAPI](https://fastapi.tiangolo.com) framework
 
 ## API Documentation
-A list of the endpoints and the functions they implement can be found [here](http://127.0.0.1:7001/docs).
+A list of the endpoints and the functions they implement can be found [here](https://api.23forobi.com/docs).
 
 ## How to contribute to #23ForObi
 
