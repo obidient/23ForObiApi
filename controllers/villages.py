@@ -3,10 +3,11 @@ from uuid import uuid4
 
 import fastapi
 import sqlalchemy.orm as Session
+from bigfastapi.auth_api import is_authenticated
 from bigfastapi.db.database import get_db
 from bigfastapi.models import user_models
 from bigfastapi.schemas import users_schemas
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from models import village_models
 from schemas import village_schemas
 from utils.progress import calculate_progress_percentage, top_contributors_in_a_village
@@ -156,10 +157,72 @@ async def search_villages(search_term: str, db: Session = fastapi.Depends(get_db
     return list(map(village_schemas.Village.from_orm, villages))
 
 
-@app.get("/user-villages/{user_id}", response_model=List[village_schemas.UserVillage])
-async def get_user_villages(user_id: str, db: Session = fastapi.Depends(get_db)):
-    user_villages = db.query(village_models.UserVillage).filter(
-        village_models.UserVillage.user_id == user_id
+@app.post("/user-villages")
+async def add_user_village(
+    user_village: village_schemas.UserVillageBase,
+    user: users_schemas.User = Depends(is_authenticated),
+    db: Session = fastapi.Depends(get_db),
+):
+    # check if village exists
+    village_obj = db.query(village_models.Village).get(user_village.village_id)
+    if not village_obj:
+        raise fastapi.HTTPException(status_code=404, detail="Village not found")
+
+    # check if user already added this village
+    user_village_exists = (
+        db.query(village_models.UserVillage)
+        .filter(
+            village_models.UserVillage.user == user.id,
+            village_models.UserVillage.village_id == village_obj.id,
+        )
+        .first()
     )
 
-    return list(map(village_schemas.UserVillage.from_orm, user_villages))
+    if user_village_exists:
+        raise fastapi.HTTPException(
+            status_code=400, detail="User already added this village"
+        )
+
+    try:
+        # add user to village
+        db_user_village = village_models.UserVillage(
+            id=uuid4().hex,
+            user=user.id,
+            village_id=village_obj.id,
+        )
+        db.add(db_user_village)
+        db.commit()
+        db.refresh(db_user_village)
+    except Exception as e:
+        raise fastapi.HTTPException(status_code=400, detail=str(e.__str__()))
+
+    return {
+        "message": "User added to village succesfully",
+    }
+
+
+@app.get("/user-villages")
+async def get_user_villages(
+    user: users_schemas.User = Depends(is_authenticated),
+    db: Session = fastapi.Depends(get_db),
+):
+    user_villages = (
+        db.query(village_models.UserVillage)
+        .options(Session.lazyload(village_models.UserVillage.village))
+        .filter(village_models.UserVillage.user == user.id)
+    )
+
+    if len(list((user_villages))) == 0:
+        return []
+
+    resp = []
+
+    for user_village in user_villages:
+        resp.append(
+            {
+                "id": user_village.id,
+                "village": user_village.village,
+            }
+        )
+
+    return resp

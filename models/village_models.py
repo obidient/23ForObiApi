@@ -43,10 +43,13 @@ class Village(db.Base):
 
     voters = relationship("Voter", back_populates="village")
     location = relationship("LocationCustom", back_populates="village")
+    user_villages = relationship("UserVillage", back_populates="village")
 
 
 class UserVillage(db.Base):
     __tablename__ = "user_villages"
     id = Column(String(255), primary_key=True, index=True, default=uuid4().hex)
-    village = Column(String(255), ForeignKey(Village.id))
+    village_id = Column(String(255), ForeignKey("villages.id"))
     user = Column(String(255), ForeignKey(User.id))
+
+    village = relationship(Village, back_populates="user_villages")
