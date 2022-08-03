@@ -24,16 +24,33 @@ async def list_voters_in_a_village(
     return list(map(voter_schemas.VoterSchema.from_orm, voters))
 
 
-@app.get("/voters-by-contributor", response_model=List[voter_schemas.VoterSchema])
+@app.get("/voters-by-contributor")
 async def list_voters_by_contributor(
     db: Session = fastapi.Depends(get_db),
     user: users_schemas.User = Depends(is_authenticated),
 ):
-    voters = db.query(voter_models.Voter).filter(
-        voter_models.Voter.delivered_by == user.id
+    voters = (
+        db.query(voter_models.Voter)
+        .options(Session.lazyload(voter_models.Voter.village))
+        .filter(voter_models.Voter.delivered_by == user.id)
     )
 
-    return list(map(voter_schemas.VoterSchema.from_orm, voters))
+    if voters == []:
+        raise fastapi.HTTPException(status_code=404, detail="No voters found")
+
+    resp = []
+    for voter in voters:
+        resp.append(
+            {
+                "id": voter.id,
+                "name": voter.name,
+                "village": voter.village,
+                "contact": voter.contact,
+                "notes": voter.notes,
+                "importance": voter.importance,
+            }
+        )
+    return resp
 
 
 @app.post("/voters")
