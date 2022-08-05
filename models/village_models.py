@@ -3,7 +3,7 @@ from uuid import uuid4
 
 import bigfastapi.db.database as db
 from bigfastapi.models.user_models import User
-from sqlalchemy import ForeignKey, Integer
+from sqlalchemy import Boolean, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Column
 from sqlalchemy.types import String
@@ -40,6 +40,7 @@ class Village(db.Base):
     name = Column(String(255), index=True)
     location_id = Column(String(255), ForeignKey("location_custom.id"))
     contributed_by = Column(String(255), ForeignKey(User.id), nullable=True)
+    is_active = Column(Boolean, default=False)
 
     voters = relationship("Voter", back_populates="village")
     location = relationship("LocationCustom", back_populates="village")

@@ -2,6 +2,7 @@ from typing import Optional
 
 import pydantic as pd
 
+
 class VillageBase(pd.BaseModel):
     name: str
     location_id: str
@@ -10,6 +11,7 @@ class VillageBase(pd.BaseModel):
 class Village(VillageBase):
     id: str
     contributed_by: Optional[str] = None
+    is_active: bool
 
     class Config:
         orm_mode = True
@@ -22,7 +24,6 @@ class UserVillageBase(pd.BaseModel):
 class UserVillage(UserVillageBase):
     id: str
     village_id: Village
-
 
     class Config:
         orm_mode = True

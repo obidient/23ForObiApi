@@ -31,7 +31,9 @@ async def get_state_details(state_code: str, db: Session = fastapi.Depends(get_d
 
 @app.post("/villages")
 async def create_village(
-    village: village_schemas.VillageBase, db: Session = fastapi.Depends(get_db)
+    village: village_schemas.VillageBase,
+    user: users_schemas.User = Depends(is_authenticated),
+    db: Session = fastapi.Depends(get_db),
 ):
     # get location
     location = db.query(village_models.LocationCustom).get(village.location_id)
@@ -40,6 +42,7 @@ async def create_village(
         id=uuid4().hex,
         name=village.name,
         location=location,
+        contributed_by=user.id,
     )
     try:
         db.add(db_village)
@@ -61,7 +64,10 @@ async def list_villages_in_a_state(
     villages = (
         db.query(village_models.Village)
         .options(Session.lazyload(village_models.Village.voters))
-        .filter(village_models.Village.location_id == state_code)
+        .filter(
+            village_models.Village.location_id == state_code,
+            village_models.Village.is_active == True,
+        )
     )
 
     if len(list((villages))) == 0:
@@ -142,7 +148,8 @@ async def get_villages_by_contributor(
     contributor_id: str, db: Session = fastapi.Depends(get_db)
 ):
     villages = db.query(village_models.Village).filter(
-        village_models.Village.contributed_by == contributor_id
+        village_models.Village.contributed_by == contributor_id,
+        village_models.Village.is_active == True,
     )
 
     return list(map(village_schemas.Village.from_orm, villages))
