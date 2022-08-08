@@ -13,3 +13,10 @@ class GoogleToken(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class UserDataSchema(BaseModel):
+    data: dict
+
+    class Config:
+        orm_mode = True

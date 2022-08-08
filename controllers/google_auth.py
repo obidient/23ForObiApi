@@ -16,8 +16,9 @@ from bigfastapi.utils import settings
 from fastapi import APIRouter, HTTPException, Request, status
 from google.auth.transport import requests
 from google.oauth2 import id_token
+from models.models import UserData
+from schemas.schemas import GoogleToken, UserDataSchema
 from starlette.config import Config
-from schemas.schemas import GoogleToken
 
 app = APIRouter()
 
@@ -66,11 +67,16 @@ async def google_auth(token: GoogleToken, db: orm.Session = fastapi.Depends(get_
         raise CREDENTIALS_EXCEPTION
 
     if check_user:
-        user_id = check_user
         access_token = await create_access_token(data={"user_id": check_user.id}, db=db)
+
+        # check if user has data
+        user_data = db.query(UserData).filter(UserData.user == check_user.id).first()
+
         response = {
             "access_token": access_token,
-            "user": UserSchema.from_orm(user_id),
+            "user": UserSchema.from_orm(check_user),
+            "is_new_user": True if not user_data else False,
+            "user_data": UserDataSchema.from_orm(user_data) if user_data else None,
         }
         return response
 
@@ -100,10 +106,16 @@ async def google_auth(token: GoogleToken, db: orm.Session = fastapi.Depends(get_
 
     access_token = await create_access_token(data={"user_id": user_obj.id}, db=db)
 
+    # check if user has data
+    user_data = db.query(UserData).filter(UserData.user == user_obj.id).first()
+
     response = {
         "access_token": access_token,
         "user": UserSchema.from_orm(user_obj),
+        "is_new_user": True if not user_data else False,
+        "user_data": UserDataSchema.from_orm(user_data) if user_data else None,
     }
+
     return response
 
 

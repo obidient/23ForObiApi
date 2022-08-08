@@ -6,6 +6,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 import database
 from api import app as api
+from controllers.user import app as user_data
 from controllers.campaign_images import app as campaign_image
 from controllers.google_auth import app as google_auth
 from controllers.progress import app as progress
@@ -35,6 +36,7 @@ app.include_router(google_auth, tags=["Google Auth"])
 app.include_router(progress, tags=["Progress"])
 app.include_router(states, tags=["States"])
 app.include_router(support_group, tags=["Support Group"])
+app.include_router(user_data, tags=["User Data"])
 app.include_router(villages, tags=["Villages"])
 app.include_router(voters, tags=["Voters"])
 
