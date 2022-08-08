@@ -40,7 +40,7 @@ class Village(db.Base):
     name = Column(String(255), index=True)
     location_id = Column(String(255), ForeignKey("location_custom.id"))
     contributed_by = Column(String(255), ForeignKey(User.id), nullable=True)
-    is_active = Column(Boolean, default=False)
+    is_active = Column(Boolean, default=True)
 
     voters = relationship("Voter", back_populates="village")
     location = relationship("LocationCustom", back_populates="village")
