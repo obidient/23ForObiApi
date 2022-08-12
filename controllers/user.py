@@ -30,7 +30,10 @@ async def add_user_data(
         db.commit()
         db.refresh(user_data_exists)
 
-        return {"message": "User data updated"}
+        return {
+            "message": "User data updated",
+            "user_data": UserDataSchema.from_orm(user_data_exists),
+        }
 
     # add new user data
     user_data = UserData(id=uuid4().hex, user=user.id, data=user_data.data)
@@ -39,7 +42,10 @@ async def add_user_data(
     db.commit()
     db.refresh(user_data)
 
-    return {"message": "User data added"}
+    return {
+        "message": "User data added",
+        "user_data": UserDataSchema.from_orm(user_data),
+    }
 
 
 @app.get("/user-details", response_model=users_schemas.User)
