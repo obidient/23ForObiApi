@@ -5,6 +5,7 @@ import fastapi
 import sqlalchemy.orm as Session
 from bigfastapi.auth_api import is_authenticated
 from bigfastapi.db.database import get_db
+from bigfastapi.models.user_models import User
 from bigfastapi.schemas import users_schemas
 from fastapi import APIRouter, Depends
 from models.models import UserData
@@ -39,3 +40,13 @@ async def add_user_data(
     db.refresh(user_data)
 
     return {"message": "User data added"}
+
+
+@app.get("/user-details", response_model=users_schemas.User)
+async def get_user_details(
+    user: users_schemas.User = Depends(is_authenticated),
+    db: Session = fastapi.Depends(get_db),
+):
+    user = db.query(User).filter(User.id == user.id).first()
+
+    return users_schemas.User.from_orm(user) if user else None
