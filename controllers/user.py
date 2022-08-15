@@ -48,6 +48,31 @@ async def add_user_data(
     }
 
 
+@app.put("/user-data/{user_data_id}")
+async def update_user_data(
+    user_data_id: str,
+    user_data: UserDataSchema,
+    user: users_schemas.User = Depends(is_authenticated),
+    db: Session = fastapi.Depends(get_db),
+):
+    # check if user data exists
+    user_data_exists = db.query(UserData).filter(UserData.id == user_data_id).first()
+
+    if not user_data_exists:
+        raise fastapi.HTTPException(status_code=400, detail="User data does not exist")
+
+    # update user data
+    user_data_exists.data = user_data.data
+    db.add(user_data_exists)
+    db.commit()
+    db.refresh(user_data_exists)
+
+    return {
+        "message": "User data updated",
+        "user_data": UserDataSchema.from_orm(user_data_exists),
+    }
+
+
 @app.get("/user-details", response_model=users_schemas.User)
 async def get_user_details(
     user: users_schemas.User = Depends(is_authenticated),
