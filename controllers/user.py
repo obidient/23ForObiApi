@@ -33,7 +33,7 @@ async def add_user_data(
         return {
             "message": "User data updated",
             "user_data": UserDataSchema.from_orm(user_data_exists),
-            "user": users_schemas.UserSchema.from_orm(user),
+            "user": users_schemas.User.from_orm(user),
         }
 
     # add new user data
@@ -46,7 +46,7 @@ async def add_user_data(
     return {
         "message": "User data added",
         "user_data": UserDataSchema.from_orm(user_data),
-        "user": users_schemas.UserSchema.from_orm(user),
+        "user": users_schemas.User.from_orm(user),
     }
 
 
@@ -72,7 +72,7 @@ async def update_user_data(
     return {
         "message": "User data updated",
         "user_data": UserDataSchema.from_orm(user_data_exists),
-        "user": users_schemas.UserSchema.from_orm(user),
+        "user": users_schemas.User.from_orm(user),
     }
 
 
