@@ -16,6 +16,7 @@ class GoogleToken(BaseModel):
 
 
 class UserDataSchema(BaseModel):
+    id: str
     data: dict
 
     class Config:

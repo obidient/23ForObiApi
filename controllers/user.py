@@ -14,6 +14,20 @@ from schemas.schemas import UserDataSchema
 app = APIRouter()
 
 
+@app.get("/user-data", response_model=UserDataSchema)
+async def get_user_data(
+    user: User = Depends(is_authenticated), db: Session = Depends(get_db)
+):
+    user_data = db.query(UserData).filter(UserData.user == user.id).first()
+
+    if not user_data:
+        raise fastapi.HTTPException(
+            status_code=400, detail="User data does not exist for this user"
+        )
+    
+    return UserDataSchema.from_orm(user_data)
+
+
 @app.post("/user-data")
 async def add_user_data(
     user_data: UserDataSchema,
