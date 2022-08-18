@@ -18,6 +18,8 @@ class GoogleToken(BaseModel):
 class UserDataSchema(BaseModel):
     id: str
     data: dict
+    state: str
+    village: str
 
     class Config:
         orm_mode = True
