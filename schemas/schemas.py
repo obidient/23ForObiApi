@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel
 
 
@@ -18,8 +19,8 @@ class GoogleToken(BaseModel):
 class UserDataSchema(BaseModel):
     id: str
     data: dict
-    state: str
-    village: str
+    state: Optional[str] = None
+    village: Optional[str] = None
 
     class Config:
         orm_mode = True
