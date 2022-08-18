@@ -5,7 +5,7 @@ import bigfastapi.db.database as db
 from bigfastapi.models.user_models import User
 from sqlalchemy import JSON, DateTime, ForeignKey, String
 from sqlalchemy.schema import Column
-
+from models.village_models import LocationCustom, Village
 UUID_HEX = uuid4().hex
 
 
@@ -20,5 +20,7 @@ class UserData(db.Base):
     id = Column(String(255), primary_key=True, index=True, default=UUID_HEX)
     user = Column(String(255), ForeignKey(User.id), nullable=True)
     data = Column(JSON, default={})
+    state = Column(String(255), ForeignKey(LocationCustom.id))
+    village = Column(String(255), ForeignKey(Village.id))
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow)

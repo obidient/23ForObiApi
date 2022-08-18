@@ -196,6 +196,7 @@ async def add_user_village(
             id=uuid4().hex,
             user=user.id,
             village_id=village_obj.id,
+            state_id=village_obj.location_id,
         )
         db.add(db_user_village)
         db.commit()

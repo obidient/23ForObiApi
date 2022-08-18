@@ -24,6 +24,13 @@ class UserVillageBase(pd.BaseModel):
 class UserVillage(UserVillageBase):
     id: str
     village_id: Village
+    state_id: str
+
+    class Config:
+        orm_mode = True
+
+class UserVillageDetails(Village):
+    state_id: str
 
     class Config:
         orm_mode = True

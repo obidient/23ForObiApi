@@ -32,6 +32,7 @@ class LocationCustom(db.Base):
     slug = Column(String(255), nullable=True)
 
     village = relationship("Village", back_populates="location")
+    user_villages = relationship("UserVillage", back_populates="location")
 
 
 class Village(db.Base):
@@ -51,6 +52,8 @@ class UserVillage(db.Base):
     __tablename__ = "user_villages"
     id = Column(String(255), primary_key=True, index=True, default=uuid4().hex)
     village_id = Column(String(255), ForeignKey("villages.id"))
+    state_id = Column(String(255), ForeignKey("location_custom.id"))
     user = Column(String(255), ForeignKey(User.id))
 
     village = relationship(Village, back_populates="user_villages")
+    location = relationship(LocationCustom, back_populates="user_villages")

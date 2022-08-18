@@ -9,12 +9,13 @@ from bigfastapi.models.user_models import User
 from bigfastapi.schemas import users_schemas
 from fastapi import APIRouter, Depends
 from models.models import UserData
-from schemas.schemas import UserDataSchema
+from models.village_models import LocationCustom, Village
+from schemas.schemas import UserDataSchema, UserUpdateSchema
 
 app = APIRouter()
 
 
-@app.get("/user-data", response_model=UserDataSchema)
+@app.get("/user-data")
 async def get_user_data(
     user: User = Depends(is_authenticated), db: Session = Depends(get_db)
 ):
@@ -24,8 +25,11 @@ async def get_user_data(
         raise fastapi.HTTPException(
             status_code=400, detail="User data does not exist for this user"
         )
-    
-    return UserDataSchema.from_orm(user_data)
+    resp = {
+        "user_data": UserDataSchema.from_orm(user_data),
+        "user": users_schemas.User.from_orm(user),
+    }
+    return resp
 
 
 @app.post("/user-data")
@@ -98,3 +102,48 @@ async def get_user_details(
     user = db.query(User).filter(User.id == user.id).first()
 
     return users_schemas.User.from_orm(user) if user else None
+
+
+@app.put("/user-details")
+async def update_user_details(
+    data: UserUpdateSchema,
+    user: users_schemas.User = Depends(is_authenticated),
+    db: Session = fastapi.Depends(get_db),
+):
+    # get user instance
+    user = db.query(User).filter(User.id == user.id).first()
+    if not user:
+        raise fastapi.HTTPException(status_code=400, detail="User does not exist")
+
+    # get user details instance
+    user_details = db.query(UserData).filter(UserData.user == user.id).first()
+    if not user_details:
+        raise fastapi.HTTPException(status_code=400, detail="User data does not exist")
+
+    # get location instance
+    location = db.query(LocationCustom).filter(LocationCustom.id == data.state).first()
+    if not location:
+        raise fastapi.HTTPException(status_code=400, detail="Location does not exist")
+
+    # get village instance
+    village = db.query(Village).filter(Village.id == data.village).first()
+    if not village:
+        raise fastapi.HTTPException(status_code=400, detail="Village does not exist")
+
+    try:
+        user.first_name = data.firstname
+        user.last_name = data.lastname
+        # user.email = data.email
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+        user_details.state = location.id
+        user_details.village = village.id
+        db.add(user_details)
+        db.commit()
+        db.refresh(user_details)
+    except Exception as err:
+        raise fastapi.HTTPException(status_code=400, detail=str(err))
+
+    return {"message": "User details updated"}
