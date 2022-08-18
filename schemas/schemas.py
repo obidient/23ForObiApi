@@ -16,11 +16,15 @@ class GoogleToken(BaseModel):
         orm_mode = True
 
 
-class UserDataSchema(BaseModel):
-    id: str
+class CreateUserDataSchema(BaseModel):
     data: dict
     state: Optional[str] = None
     village: Optional[str] = None
+
+
+class UserDataSchema(CreateUserDataSchema):
+    id: str
+    user: str
 
     class Config:
         orm_mode = True

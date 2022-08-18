@@ -10,7 +10,7 @@ from bigfastapi.schemas import users_schemas
 from fastapi import APIRouter, Depends
 from models.models import UserData
 from models.village_models import LocationCustom, Village
-from schemas.schemas import UserDataSchema, UserUpdateSchema
+from schemas.schemas import UserDataSchema, UserUpdateSchema, CreateUserDataSchema
 
 app = APIRouter()
 
@@ -34,7 +34,7 @@ async def get_user_data(
 
 @app.post("/user-data")
 async def add_user_data(
-    user_data: UserDataSchema,
+    user_data: CreateUserDataSchema,
     user: users_schemas.User = Depends(is_authenticated),
     db: Session = fastapi.Depends(get_db),
 ):
