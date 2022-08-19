@@ -7,7 +7,7 @@ from sqlalchemy import Boolean, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Column
 from sqlalchemy.types import String
-
+from sqlalchemy import JSON, DateTime, ForeignKey, String
 
 class StateDetails(db.Base):
     __tablename__ = "state_details"
@@ -33,6 +33,7 @@ class LocationCustom(db.Base):
 
     village = relationship("Village", back_populates="location")
     user_villages = relationship("UserVillage", back_populates="location")
+    user_data = relationship("UserData", back_populates="location")
 
 
 class Village(db.Base):
@@ -46,6 +47,7 @@ class Village(db.Base):
     voters = relationship("Voter", back_populates="village")
     location = relationship("LocationCustom", back_populates="village")
     user_villages = relationship("UserVillage", back_populates="village")
+    user_data = relationship("UserData", back_populates="village_id")
 
 
 class UserVillage(db.Base):
@@ -57,3 +59,17 @@ class UserVillage(db.Base):
 
     village = relationship(Village, back_populates="user_villages")
     location = relationship(LocationCustom, back_populates="user_villages")
+
+
+class UserData(db.Base):
+    __tablename__ = "user_data"
+    id = Column(String(255), primary_key=True, index=True, default=uuid4().hex)
+    user = Column(String(255), ForeignKey(User.id), nullable=True)
+    data = Column(JSON, default={})
+    state = Column(String(255), ForeignKey("location_custom.id"), nullable=True)
+    village = Column(String(255), ForeignKey("villages.id"), nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    village_id = relationship(Village, back_populates="user_data")
+    location = relationship(LocationCustom, back_populates="user_data")

@@ -16,7 +16,7 @@ from bigfastapi.utils import settings
 from fastapi import APIRouter, HTTPException, Request, status
 from google.auth.transport import requests
 from google.oauth2 import id_token
-from models.models import UserData
+from models.village_models import UserData
 from schemas.schemas import GoogleToken, UserDataSchema
 from starlette.config import Config
 

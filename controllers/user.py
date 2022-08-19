@@ -8,9 +8,11 @@ from bigfastapi.db.database import get_db
 from bigfastapi.models.user_models import User
 from bigfastapi.schemas import users_schemas
 from fastapi import APIRouter, Depends
-from models.models import UserData
+from models.village_models import UserData
 from models.village_models import LocationCustom, Village
-from schemas.schemas import UserDataSchema, UserUpdateSchema, CreateUserDataSchema
+from schemas.village_schemas import Village as VillageSchema
+from schemas.village_schemas import StateDetails
+from schemas.schemas import CreateUserDataSchema, UserDataSchema, UserUpdateSchema
 
 app = APIRouter()
 
@@ -27,6 +29,8 @@ async def get_user_data(
         )
     resp = {
         "user_data": UserDataSchema.from_orm(user_data),
+        "state": StateDetails.from_orm(user_data.location),
+        "village": VillageSchema.from_orm(user_data.village_id),
         "user": users_schemas.User.from_orm(user),
     }
     return resp
@@ -41,37 +45,66 @@ async def add_user_data(
     # check if user already has data
     user_data_exists = db.query(UserData).filter(UserData.user == user.id).first()
 
+    information_data = user_data.data
+
+    village_id = information_data.get("village")
+    village = db.query(Village).filter(Village.id == village_id).first()
+    if not village:
+        raise fastapi.HTTPException(status_code=404, detail="Village does not exist")
+
+    state_id = information_data.get("state")
+    state = db.query(LocationCustom).filter(LocationCustom.id == state_id).first()
+    if not state:
+        raise fastapi.HTTPException(status_code=404, detail="State does not exist")
+
+    # pop village and state from data
+    information_data.pop("village")
+    information_data.pop("state")
+
     if user_data_exists:
         # update user data
-        user_data_exists.data = user_data.data
+        user_data_exists.data = information_data
+        user_data_exists.village = village.id
+        user_data_exists.state = state.id
         db.add(user_data_exists)
         db.commit()
         db.refresh(user_data_exists)
 
-        return {
-            "message": "User data updated",
+        resp = {
             "user_data": UserDataSchema.from_orm(user_data_exists),
+            "state": StateDetails.from_orm(user_data_exists.location),
+            "village": VillageSchema.from_orm(user_data_exists.village_id),
             "user": users_schemas.User.from_orm(user),
         }
 
-    # add new user data
-    user_data = UserData(id=uuid4().hex, user=user.id, data=user_data.data)
+        return resp
 
+    # add new user data
+    user_data = UserData(
+        id=uuid4().hex,
+        user=user.id,
+        data=user_data.data,
+        village=village.id,
+        state=state.id,
+    )
     db.add(user_data)
     db.commit()
     db.refresh(user_data)
 
-    return {
-        "message": "User data added",
+    resp = {
         "user_data": UserDataSchema.from_orm(user_data),
+        "state": StateDetails.from_orm(user_data.location),
+        "village": VillageSchema.from_orm(user_data.village_id),
         "user": users_schemas.User.from_orm(user),
     }
+
+    return resp
 
 
 @app.put("/user-data/{user_data_id}")
 async def update_user_data(
     user_data_id: str,
-    user_data: UserDataSchema,
+    user_data: CreateUserDataSchema,
     user: users_schemas.User = Depends(is_authenticated),
     db: Session = fastapi.Depends(get_db),
 ):
@@ -87,11 +120,14 @@ async def update_user_data(
     db.commit()
     db.refresh(user_data_exists)
 
-    return {
-        "message": "User data updated",
+    resp = {
         "user_data": UserDataSchema.from_orm(user_data_exists),
+        "state": StateDetails.from_orm(user_data_exists.location),
+        "village": VillageSchema.from_orm(user_data_exists.village_id),
         "user": users_schemas.User.from_orm(user),
     }
+
+    return resp
 
 
 @app.get("/user-details", response_model=users_schemas.User)
@@ -146,4 +182,11 @@ async def update_user_details(
     except Exception as err:
         raise fastapi.HTTPException(status_code=400, detail=str(err))
 
-    return {"message": "User details updated"}
+    resp = {
+        "user_data": UserDataSchema.from_orm(user_details),
+        "state": StateDetails.from_orm(user_details.location),
+        "village": VillageSchema.from_orm(user_details.village_id),
+        "user": users_schemas.User.from_orm(user),
+    }
+
+    return resp

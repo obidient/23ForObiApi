@@ -18,8 +18,8 @@ class GoogleToken(BaseModel):
 
 class CreateUserDataSchema(BaseModel):
     data: dict
-    state: Optional[str] = None
-    village: Optional[str] = None
+    # state: Optional[str] = None
+    # village: Optional[str] = None
 
 
 class UserDataSchema(CreateUserDataSchema):
