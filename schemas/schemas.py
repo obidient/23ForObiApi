@@ -1,4 +1,6 @@
 from typing import Optional
+
+from bigfastapi.schemas.users_schemas import User as UserSchema
 from pydantic import BaseModel
 
 
@@ -11,6 +13,14 @@ class TestSchema(BaseModel):
 
 class GoogleToken(BaseModel):
     token: str
+
+    class Config:
+        orm_mode = True
+
+
+class UserSchemaCustom(UserSchema):
+    image_url: Optional[str] = None
+    google_image_url: Optional[str] = None
 
     class Config:
         orm_mode = True

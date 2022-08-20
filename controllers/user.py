@@ -8,11 +8,15 @@ from bigfastapi.db.database import get_db
 from bigfastapi.models.user_models import User
 from bigfastapi.schemas import users_schemas
 from fastapi import APIRouter, Depends
-from models.village_models import UserData
-from models.village_models import LocationCustom, Village
-from schemas.village_schemas import Village as VillageSchema
+from models.village_models import LocationCustom, UserData, Village
+from schemas.schemas import (
+    CreateUserDataSchema,
+    UserDataSchema,
+    UserSchemaCustom,
+    UserUpdateSchema,
+)
 from schemas.village_schemas import StateDetails
-from schemas.schemas import CreateUserDataSchema, UserDataSchema, UserUpdateSchema
+from schemas.village_schemas import Village as VillageSchema
 
 app = APIRouter()
 
@@ -31,7 +35,7 @@ async def get_user_data(
         "user_data": UserDataSchema.from_orm(user_data),
         "state": StateDetails.from_orm(user_data.location),
         "village": VillageSchema.from_orm(user_data.village_id),
-        "user": users_schemas.User.from_orm(user),
+        "user": UserSchemaCustom.from_orm(user),
     }
     return resp
 
@@ -74,7 +78,7 @@ async def add_user_data(
             "user_data": UserDataSchema.from_orm(user_data_exists),
             "state": StateDetails.from_orm(user_data_exists.location),
             "village": VillageSchema.from_orm(user_data_exists.village_id),
-            "user": users_schemas.User.from_orm(user),
+            "user": UserSchemaCustom.from_orm(user),
         }
 
         return resp
@@ -95,7 +99,7 @@ async def add_user_data(
         "user_data": UserDataSchema.from_orm(user_data),
         "state": StateDetails.from_orm(user_data.location),
         "village": VillageSchema.from_orm(user_data.village_id),
-        "user": users_schemas.User.from_orm(user),
+        "user": UserSchemaCustom.from_orm(user),
     }
 
     return resp
@@ -124,20 +128,20 @@ async def update_user_data(
         "user_data": UserDataSchema.from_orm(user_data_exists),
         "state": StateDetails.from_orm(user_data_exists.location),
         "village": VillageSchema.from_orm(user_data_exists.village_id),
-        "user": users_schemas.User.from_orm(user),
+        "user": UserSchemaCustom.from_orm(user),
     }
 
     return resp
 
 
-@app.get("/user-details", response_model=users_schemas.User)
+@app.get("/user-details", response_model=UserSchemaCustom)
 async def get_user_details(
     user: users_schemas.User = Depends(is_authenticated),
     db: Session = fastapi.Depends(get_db),
 ):
     user = db.query(User).filter(User.id == user.id).first()
 
-    return users_schemas.User.from_orm(user) if user else None
+    return UserSchemaCustom.from_orm(user) if user else None
 
 
 @app.put("/user-details")
@@ -186,7 +190,7 @@ async def update_user_details(
         "user_data": UserDataSchema.from_orm(user_details),
         "state": StateDetails.from_orm(user_details.location),
         "village": VillageSchema.from_orm(user_details.village_id),
-        "user": users_schemas.User.from_orm(user),
+        "user": UserSchemaCustom.from_orm(user),
     }
 
     return resp
