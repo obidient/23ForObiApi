@@ -17,7 +17,7 @@ from fastapi import APIRouter, HTTPException, Request, status
 from google.auth.transport import requests
 from google.oauth2 import id_token
 from models.village_models import UserData
-from schemas.schemas import GoogleToken, UserDataSchema
+from schemas.schemas import GoogleToken, UserDataSchema, UserSchemaCustom
 from starlette.config import Config
 
 app = APIRouter()
@@ -74,7 +74,7 @@ async def google_auth(token: GoogleToken, db: orm.Session = fastapi.Depends(get_
 
         response = {
             "access_token": access_token,
-            "user": UserSchema.from_orm(check_user),
+            "user": UserSchemaCustom.from_orm(check_user),
             "is_new_user": True if not user_data else False,
             "user_data": UserDataSchema.from_orm(user_data) if user_data else None,
         }
@@ -111,7 +111,7 @@ async def google_auth(token: GoogleToken, db: orm.Session = fastapi.Depends(get_
 
     response = {
         "access_token": access_token,
-        "user": UserSchema.from_orm(user_obj),
+        "user": UserSchemaCustom.from_orm(user_obj),
         "is_new_user": True if not user_data else False,
         "user_data": UserDataSchema.from_orm(user_data) if user_data else None,
     }
