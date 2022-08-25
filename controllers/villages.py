@@ -15,6 +15,18 @@ from utils.progress import calculate_progress_percentage, top_contributors_in_a_
 app = APIRouter()
 
 
+@app.get(
+    "/list_lga_in_state/{state_code}", response_model=List[village_schemas.LgaSchema]
+)
+def list_lga_in_state(state_code: str, db: Session = Depends(get_db)):
+    lgas = (
+        db.query(village_models.LocalGovernment)
+        .filter(village_models.LocalGovernment.location_id == state_code)
+        .all()
+    )
+    return list(map(village_schemas.LgaSchema.from_orm, lgas))
+
+
 @app.get("/state-details/{state_code}", response_model=village_schemas.StateDetails)
 async def get_state_details(state_code: str, db: Session = fastapi.Depends(get_db)):
     state_details = (

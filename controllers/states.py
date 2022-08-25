@@ -1,5 +1,7 @@
 import json
+import os
 from typing import List
+from uuid import uuid4
 
 import fastapi
 import pkg_resources
@@ -7,8 +9,9 @@ import sqlalchemy.orm as Session
 from bigfastapi.db.database import get_db
 from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import JSONResponse
-from models.village_models import LocationCustom
-from schemas.village_schemas import StateDetails
+from models.village_models import LocalGovernment, LocationCustom
+from schemas.village_schemas import LgaSchema, StateDetails
+from utils.lga import generate_lga_objects
 from utils.progress import calculate_progress_percentage
 
 app = APIRouter(tags=["States"])
@@ -16,7 +19,7 @@ app = APIRouter(tags=["States"])
 COUNTRIES_DATA_PATH = pkg_resources.resource_filename("bigfastapi", "data/")
 
 
-@app.get("/...")
+# @app.get("/...")
 def testss(db: Session = fastapi.Depends(get_db)):
     country_code = "NG"
     country_data = []
@@ -51,6 +54,31 @@ def testss(db: Session = fastapi.Depends(get_db)):
         except Exception as e:
             print(str(e))
             pass
+
+
+# @app.get("/....")
+def test_cl(db: Session = fastapi.Depends(get_db)):
+
+    # delete all lgas
+    db.query(LocalGovernment).delete()
+    obj = generate_lga_objects()
+
+    li = []
+    for lga in obj:
+        li.append(
+            LocalGovernment(
+                id=uuid4(), name=lga["name"], location_id=lga["location_id"]
+            )
+        )
+
+    # bulk insert
+    try:
+        db.bulk_save_objects(li)
+        db.commit()
+    except Exception as e:
+        return {"success": False, "message": str(e)}
+
+    return {"success": True}
 
 
 @app.get("/states", response_model=List[StateDetails])

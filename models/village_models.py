@@ -3,11 +3,11 @@ from uuid import uuid4
 
 import bigfastapi.db.database as db
 from bigfastapi.models.user_models import User
-from sqlalchemy import Boolean, ForeignKey, Integer
+from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Column
 from sqlalchemy.types import String
-from sqlalchemy import JSON, DateTime, ForeignKey, String
+
 
 class StateDetails(db.Base):
     __tablename__ = "state_details"
@@ -34,6 +34,18 @@ class LocationCustom(db.Base):
     village = relationship("Village", back_populates="location")
     user_villages = relationship("UserVillage", back_populates="location")
     user_data = relationship("UserData", back_populates="location")
+    local_government = relationship("LocalGovernment", back_populates="location")
+
+
+class LocalGovernment(db.Base):
+    __tablename__ = "local_governments"
+    id = Column(String(255), primary_key=True, index=True, default=uuid4().hex)
+    name = Column(String(255), nullable=False)
+    location_id = Column(String(255), ForeignKey("location_custom.id"), nullable=False)
+
+    location = relationship("LocationCustom", back_populates="local_government")
+    village = relationship("Village", back_populates="local_government")
+    user_data = relationship("UserData", back_populates="local_government")
 
 
 class Village(db.Base):
@@ -41,6 +53,9 @@ class Village(db.Base):
     id = Column(String(255), primary_key=True, index=True, default=uuid4().hex)
     name = Column(String(255), index=True)
     location_id = Column(String(255), ForeignKey("location_custom.id"))
+    local_government_id = Column(
+        String(255), ForeignKey("local_governments.id"), nullable=True
+    )
     contributed_by = Column(String(255), ForeignKey(User.id), nullable=True)
     is_active = Column(Boolean, default=True)
 
@@ -48,6 +63,7 @@ class Village(db.Base):
     location = relationship("LocationCustom", back_populates="village")
     user_villages = relationship("UserVillage", back_populates="village")
     user_data = relationship("UserData", back_populates="village_id")
+    local_government = relationship("LocalGovernment", back_populates="village")
 
 
 class UserVillage(db.Base):
@@ -67,9 +83,13 @@ class UserData(db.Base):
     user = Column(String(255), ForeignKey(User.id), nullable=True)
     data = Column(JSON, default={})
     state = Column(String(255), ForeignKey("location_custom.id"), nullable=True)
+    local_government_id = Column(
+        String(255), ForeignKey("local_governments.id"), nullable=True
+    )
     village = Column(String(255), ForeignKey("villages.id"), nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow)
 
+    local_government = relationship(LocalGovernment, back_populates="user_data")
     village_id = relationship(Village, back_populates="user_data")
     location = relationship(LocationCustom, back_populates="user_data")

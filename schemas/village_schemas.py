@@ -10,6 +10,7 @@ class VillageBase(pd.BaseModel):
 
 class Village(VillageBase):
     id: str
+    local_government_id: str
     contributed_by: Optional[str] = None
     is_active: bool
 
@@ -29,6 +30,7 @@ class UserVillage(UserVillageBase):
     class Config:
         orm_mode = True
 
+
 class UserVillageDetails(Village):
     state_id: str
 
@@ -47,6 +49,15 @@ class StateDetails(pd.BaseModel):
     progress: Optional[int] = 0
     vote_control: Optional[int] = 0
     slug: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+
+class LgaSchema(pd.BaseModel):
+    id: str
+    name: str
+    location_id: str
 
     class Config:
         orm_mode = True
