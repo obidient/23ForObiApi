@@ -6,11 +6,11 @@ import pydantic as pd
 class VillageBase(pd.BaseModel):
     name: str
     location_id: str
+    local_government_id: str
 
 
 class Village(VillageBase):
     id: str
-    local_government_id: str
     contributed_by: Optional[str] = None
     is_active: bool
 

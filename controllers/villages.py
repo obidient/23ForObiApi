@@ -47,13 +47,31 @@ async def create_village(
     user: users_schemas.User = Depends(is_authenticated),
     db: Session = fastapi.Depends(get_db),
 ):
-    # get location
-    location = db.query(village_models.LocationCustom).get(village.location_id)
+    # get state
+    location = (
+        db.query(village_models.LocationCustom)
+        .filter(village_models.LocationCustom.id == village.location_id)
+        .first()
+    )
+    if not location:
+        raise fastapi.HTTPException(status_code=404, detail="State not found")
+
+    # get local government
+    local_government = (
+        db.query(village_models.LocalGovernment)
+        .filter(village_models.LocalGovernment.id == village.local_government_id)
+        .first()
+    )
+    if not local_government:
+        raise fastapi.HTTPException(
+            status_code=404, detail="Local government not found"
+        )
 
     db_village = village_models.Village(
         id=uuid4().hex,
         name=village.name,
         location=location,
+        local_government=local_government,
         contributed_by=user.id,
     )
     try:
@@ -104,6 +122,7 @@ async def list_villages_in_a_state(
                 "id": village.id,
                 "name": village.name,
                 "state": village.location,
+                "local_government": village.local_government,
                 "contributed_by": village.contributed_by,
                 "voters": voters_per_village,
                 "progress_percentage": calculate_progress_percentage(
@@ -117,6 +136,15 @@ async def list_villages_in_a_state(
         state_vote_count, number_of_villages
     )
     return resp
+
+
+@app.get("/villages-in-lga/{lga_id}", response_model=List[village_schemas.Village])
+async def list_of_villages_in_lga(lga_id: str, db: Session = fastapi.Depends(get_db)):
+    villages_in_lga = db.query(village_models.Village).filter(
+        village_models.Village.local_government_id == lga_id,
+        village_models.Village.is_active == True,
+    )
+    return list(map(village_schemas.Village.from_orm, villages_in_lga))
 
 
 @app.get("/village-details/{village_id}")
@@ -143,6 +171,7 @@ async def get_village_details(village_id: str, db: Session = fastapi.Depends(get
         "id": village.id,
         "name": village.name,
         "state": village.location,
+        "local_government": village.local_government,
         "contributed_by": village.contributed_by,
         "voters": len(village.voters),
         "progress_percentage": calculate_progress_percentage(len(village.voters)),
