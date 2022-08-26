@@ -53,7 +53,6 @@ async def add_user_data(
     user_data_exists = db.query(UserData).filter(UserData.user == user.id).first()
 
     information_data = user_data.data
-
     state_id = information_data.get("state")
     state = db.query(LocationCustom).filter(LocationCustom.id == state_id).first()
     if not state:
@@ -64,7 +63,7 @@ async def add_user_data(
     if not lga:
         raise fastapi.HTTPException(status_code=404, detail="LGA does not exist")
 
-    if not user_data.is_village_new:
+    if not information_data.get("is_village_new"):
         village_id = information_data.get("village")
         village = db.query(Village).filter(Village.id == village_id).first()
         if not village:
@@ -88,6 +87,7 @@ async def add_user_data(
     information_data.pop("village")
     information_data.pop("state")
     information_data.pop("lga")
+    information_data.pop("is_village_new")
 
     if user_data_exists:
         # update user data
