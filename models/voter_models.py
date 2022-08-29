@@ -25,7 +25,7 @@ class Voter(db.Base):
     delivered_by = Column(String(255), ForeignKey(User.id), nullable=True)
 
     village = relationship(Village, back_populates="voters")
-    
+
 
 class DuplicatedVoter(db.Base):
     __tablename__ = "duplicated_voters"

@@ -28,7 +28,7 @@ class UserSchemaCustom(UserSchema):
 
 class CreateUserDataSchema(BaseModel):
     data: dict
-    is_village_new : bool = False
+    is_village_new: bool = False
     # state: Optional[str] = None
     # village: Optional[str] = None
 

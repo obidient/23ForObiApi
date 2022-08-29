@@ -19,7 +19,7 @@ async def create_campaign_image(
 ):
     db_campaign_image = campaign_models.CampaignImage(
         id=uuid4().hex,
-        location=campaign_image.location,
+        location_id=campaign_image.location,
         title=campaign_image.title,
         url=campaign_image.url,
         contributed_by=campaign_image.contributed_by,

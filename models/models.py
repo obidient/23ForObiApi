@@ -6,6 +6,7 @@ from bigfastapi.models.user_models import User
 from sqlalchemy import JSON, DateTime, ForeignKey, String
 from sqlalchemy.schema import Column
 from models.village_models import LocationCustom, Village
+
 UUID_HEX = uuid4().hex
 
 

@@ -35,6 +35,8 @@ class LocationCustom(db.Base):
     user_villages = relationship("UserVillage", back_populates="location")
     user_data = relationship("UserData", back_populates="location")
     local_government = relationship("LocalGovernment", back_populates="location")
+    campaign_image = relationship("CampaignImage", back_populates="location")
+    campaign_slogan = relationship("CampaignSlogan", back_populates="location")
 
 
 class LocalGovernment(db.Base):

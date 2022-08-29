@@ -51,5 +51,5 @@ async def get_overall_progress(
 
     response["progress_percentage"] = calculate_progress_percentage(voters, villages)
     response["total_number_of_voters"] = voters
-    
+
     return response
