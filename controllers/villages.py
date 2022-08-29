@@ -275,3 +275,25 @@ async def get_user_villages(
         )
 
     return resp
+
+
+@app.delete("/user-villages/{user_village_id}")
+async def delete_user_village(
+    user_village_id: str,
+    user: users_schemas.User = Depends(is_authenticated),
+    db: Session = fastapi.Depends(get_db),
+):
+    user_village = db.query(village_models.UserVillage).get(user_village_id)
+
+    if not user_village:
+        raise fastapi.HTTPException(status_code=404, detail="User village not found")
+
+    if user_village.user != user.id:
+        raise fastapi.HTTPException(status_code=403, detail="User not authorized")
+
+    db.delete(user_village)
+    db.commit()
+
+    return {
+        "message": "User village deleted succesfully",
+    }
