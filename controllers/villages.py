@@ -270,6 +270,7 @@ async def get_user_villages(
         resp.append(
             {
                 "id": user_village.id,
+                "state": user_village.location,
                 "village": user_village.village,
             }
         )

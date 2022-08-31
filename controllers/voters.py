@@ -64,14 +64,16 @@ async def add_voters_to_village(
     if not village:
         raise fastapi.HTTPException(status_code=400, detail="Village does not exist")
 
+    
     # check if voter already exists
-    voter_exists = (
-        db.query(voter_models.Voter)
-        .filter(voter_models.Voter.contact == voter.contact)
-        .first()
-    )
-    if voter_exists:
-        raise fastapi.HTTPException(status_code=400, detail="Voter already exists")
+    if voter.contact != "" and voter.contact != None:
+        voter_exists = (
+            db.query(voter_models.Voter)
+            .filter(voter_models.Voter.contact == voter.contact)
+            .first()
+        )
+        if voter_exists:
+            raise fastapi.HTTPException(status_code=400, detail="Voter already exists")
 
     db_voters_to_village = voter_models.Voter(
         id=uuid4().hex,
