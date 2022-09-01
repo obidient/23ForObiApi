@@ -1,4 +1,5 @@
 from typing import List
+from urllib import response
 
 import fastapi
 import sqlalchemy.orm as Session
@@ -51,5 +52,28 @@ async def get_overall_progress(
 
     response["progress_percentage"] = calculate_progress_percentage(voters, villages)
     response["total_number_of_voters"] = voters
+
+    return response
+
+
+@app.get("/statistcis")
+async def get_statistics(db: Session = fastapi.Depends(get_db)):
+    response = {
+        "number_of_voters": 0,
+        "number_of_villages": 0,
+        "number_of_users": 0,
+    }
+
+    # count total number of voters in the database
+    voters = db.query(voter_models.Voter).count()
+    response["number_of_voters"] = voters
+
+    # count total number of villages in the database
+    villages = db.query(village_models.Village).count()
+    response["number_of_villages"] = villages
+
+    # count total number of users in the database
+    users = db.query(village_models.User).count()
+    response["number_of_users"] = users
 
     return response

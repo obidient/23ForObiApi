@@ -64,7 +64,6 @@ async def add_voters_to_village(
     if not village:
         raise fastapi.HTTPException(status_code=400, detail="Village does not exist")
 
-    
     # check if voter already exists
     if voter.contact != "" and voter.contact != None:
         voter_exists = (
