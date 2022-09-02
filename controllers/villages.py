@@ -8,7 +8,7 @@ from bigfastapi.db.database import get_db
 from bigfastapi.models import user_models
 from bigfastapi.schemas import users_schemas
 from fastapi import APIRouter, Depends
-from models import village_models
+from models import village_models, voter_models
 from schemas import village_schemas
 from utils.progress import calculate_progress_percentage, top_contributors_in_a_village
 
@@ -288,6 +288,15 @@ async def delete_user_village(
 
     if not user_village:
         raise fastapi.HTTPException(status_code=404, detail="User village not found")
+
+    # delete voters related to user and village
+    db.query(voter_models.Voter).filter(
+        voter_models.Voter.delivered_by == user.id,
+        voter_models.Voter.village_id == user_village.village_id,
+    ).delete()
+
+    db.delete(user_village)
+    db.commit()
 
     if user_village.user != user.id:
         raise fastapi.HTTPException(status_code=403, detail="User not authorized")
